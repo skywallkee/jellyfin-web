@@ -54,6 +54,10 @@ const isInFixedContainer = (el: HTMLElement) => {
     return false;
 };
 
+/** The navigation bar and TV rail form their own zone, separate from the page content. */
+const NAV_SELECTOR = '.cinema-rail, .cinema-topnav';
+const isInNav = (el: HTMLElement) => Boolean(el.closest(NAV_SELECTOR));
+
 const center = (rect: DOMRect) => [ rect.left + rect.width / 2, rect.top + rect.height / 2 ];
 
 /** Distance between two spans on one axis; 0 when they overlap. */
@@ -150,9 +154,15 @@ export const useSpatialNavigation = (enabled: boolean) => {
             }
 
             const isHorizontal = direction === 'left' || direction === 'right';
-            // Left/right stay in the row; if the row ends, they can still reach the fixed navigation (the TV rail)
-            const next = findNext(active, direction, candidates, isHorizontal)
-                ?? (isHorizontal ? findNext(active, direction, candidates.filter(isInFixedContainer)) : undefined);
+            const activeInNav = isInNav(active);
+            const sameZone = candidates.filter(el => isInNav(el) === activeInNav);
+            const otherZone = candidates.filter(el => isInNav(el) !== activeInNav);
+
+            // Up/down never leave the current zone, so moving down a grid can't jump into the rail.
+            // Left/right stay in the row; at the end of a row they cross between content and navigation.
+            const next = isHorizontal ?
+                findNext(active, direction, candidates, true) ?? findNext(active, direction, otherZone) :
+                findNext(active, direction, sameZone);
             if (next) focusElement(next, direction);
         };
 

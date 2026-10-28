@@ -835,3 +835,109 @@
         padding-top: 30vh;
     }
 }
+
+// Library
+.cinema-library {
+    position: relative;
+    min-height: 100vh;
+    padding-bottom: 64px;
+    isolation: isolate;
+}
+
+.cinema-library__backdrop {
+    position: absolute;
+    top: calc(-1 * var(--cinema-nav-offset));
+    right: 0;
+    left: 0;
+    z-index: -1;
+    height: 70vh;
+    background-position: center 20%;
+    background-size: cover;
+    opacity: 0.45;
+
+    &::after {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(0deg, var(--cinema-bg) 5%, rgba(7, 8, 13, 0.7) 50%, rgba(7, 8, 13, 0.35) 100%);
+        content: '';
+    }
+}
+
+.cinema-library__header {
+    display: flex;
+    gap: 14px;
+    align-items: baseline;
+    padding: 28px var(--cinema-gutter) 18px;
+}
+
+.cinema-library__title {
+    margin: 0;
+    font-size: clamp(2rem, 4vw, 3.4rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.cinema-library__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    width: fit-content;
+    max-width: calc(100% - 2 * var(--cinema-gutter));
+    margin: 0 var(--cinema-gutter);
+    padding: 6px;
+    border-radius: 999px;
+
+    .cinema-season {
+        border-color: transparent;
+    }
+
+    .cinema-season.is-active {
+        border-color: #fff;
+    }
+}
+
+.cinema-chipgroup {
+    display: flex;
+    gap: 6px;
+}
+
+.cinema-library__genres {
+    padding: 14px var(--cinema-gutter) 4px;
+    overflow-x: auto;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+.cinema-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(var(--cinema-card-poster), 1fr));
+    gap: 22px 18px;
+    padding: 22px var(--cinema-gutter) 0;
+
+    .cinema-card {
+        width: auto;
+    }
+}
+
+.cinema-grid--landscape {
+    grid-template-columns: repeat(auto-fill, minmax(var(--cinema-card-land), 1fr));
+}
+
+.cinema-library__empty {
+    padding: 40px var(--cinema-gutter);
+    color: var(--cinema-ink-2);
+}
+
+.cinema-library__sentinel {
+    height: 1px;
+}
+
+.cinema-library__more {
+    display: flex;
+    justify-content: center;
+    padding-top: 24px;
+}

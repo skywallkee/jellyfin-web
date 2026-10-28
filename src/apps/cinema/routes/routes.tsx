@@ -14,7 +14,9 @@ import { AppType } from 'constants/appType';
 /** Pages the cinema app draws itself. Everything else falls back to the modern app's pages. */
 const CINEMA_USER_ROUTES: AsyncRoute[] = [
     { path: 'home', type: AppType.Cinema },
-    { path: 'details', type: AppType.Cinema }
+    { path: 'details', type: AppType.Cinema },
+    { path: 'movies', type: AppType.Cinema },
+    { path: 'tv', page: 'shows', type: AppType.Cinema }
 ];
 
 const cinemaPaths = new Set(CINEMA_USER_ROUTES.map(route => route.path));
