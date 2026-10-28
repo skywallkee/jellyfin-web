@@ -1,0 +1,536 @@
+// Cinema layout: design tokens and component styles.
+// Everything is scoped to .cinema-app so other layouts are unaffected.
+
+.cinema-app {
+    --cinema-bg: #07080d;
+    --cinema-ink: #f4f5fa;
+    --cinema-ink-2: rgba(244, 245, 250, 0.72);
+    --cinema-ink-3: rgba(244, 245, 250, 0.5);
+    --cinema-glass: rgba(255, 255, 255, 0.07);
+    --cinema-glass-strong: rgba(255, 255, 255, 0.13);
+    --cinema-glass-solid: rgba(22, 24, 34, 0.88);
+    --cinema-glass-edge: rgba(255, 255, 255, 0.16);
+    --cinema-accent: #8ab4ff;
+    --cinema-accent-2: #c48bff;
+    --cinema-focus: #fff;
+    --cinema-blur: 22px;
+    --cinema-gutter: 56px;
+    --cinema-nav-offset: 92px;
+    --cinema-rail-offset: 0;
+    --cinema-card-land: 300px;
+    --cinema-card-poster: 170px;
+
+    position: relative;
+    min-height: 100%;
+    color: var(--cinema-ink);
+    background: var(--cinema-bg);
+    font-family: 'Noto Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+// TV: larger type and cards for viewing from the couch, room for the side rail
+.cinema-app--tv {
+    --cinema-gutter: 64px;
+    --cinema-nav-offset: 48px;
+    --cinema-rail-offset: 120px;
+    --cinema-card-land: 360px;
+    --cinema-card-poster: 200px;
+
+    font-size: 1.15em;
+}
+
+@media (max-width: 900px) {
+    .cinema-app {
+        --cinema-gutter: 16px;
+        --cinema-card-land: 240px;
+        --cinema-card-poster: 130px;
+    }
+}
+
+// Glass surface. Solid tinted panel first, blur only where supported.
+.cinema-glass {
+    background: var(--cinema-glass-solid);
+    border: 1px solid var(--cinema-glass-edge);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 20px 50px rgba(0, 0, 0, 0.35);
+}
+
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .cinema-glass {
+        background: var(--cinema-glass);
+        backdrop-filter: blur(var(--cinema-blur)) saturate(160%);
+    }
+}
+
+// Shared focus language: outline, glow and slight scale-up
+.cinema-app .cinema-focusable {
+    outline: none;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+
+    &:focus-visible {
+        transform: scale(1.06);
+        box-shadow: 0 0 0 3px var(--cinema-focus), 0 0 38px rgba(138, 180, 255, 0.55), 0 18px 40px rgba(0, 0, 0, 0.6);
+        z-index: 2;
+    }
+}
+
+// Main content area
+.cinema-main {
+    position: relative;
+    padding-left: var(--cinema-rail-offset);
+}
+
+.cinema-main--offset {
+    padding-top: var(--cinema-nav-offset);
+}
+
+// Top navigation (desktop)
+.cinema-topnav {
+    position: fixed;
+    top: 18px;
+    left: 50%;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    max-width: calc(100% - 32px);
+    padding: 6px;
+    border-radius: 999px;
+    transform: translateX(-50%);
+}
+
+.cinema-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 14px 0 10px;
+    color: var(--cinema-ink);
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.cinema-brand__mark {
+    width: 22px;
+    height: 22px;
+    border-radius: 7px;
+    background: linear-gradient(135deg, var(--cinema-accent), var(--cinema-accent-2));
+}
+
+.cinema-topnav__links {
+    display: flex;
+    gap: 2px;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.cinema-navlink {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 16px;
+    border-radius: 999px;
+    color: var(--cinema-ink-2);
+    font-size: 0.95rem;
+    text-decoration: none;
+    white-space: nowrap;
+
+    &:hover {
+        color: var(--cinema-ink);
+    }
+
+    &.is-active {
+        color: var(--cinema-ink);
+        background: var(--cinema-glass-strong);
+    }
+
+    &.cinema-focusable:focus-visible {
+        transform: none;
+        box-shadow: 0 0 0 2px var(--cinema-focus);
+    }
+}
+
+.cinema-topnav__divider {
+    flex: none;
+    width: 1px;
+    height: 22px;
+    margin: 0 6px;
+    background: var(--cinema-glass-edge);
+}
+
+.cinema-iconbtn {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 999px;
+    color: var(--cinema-ink-2);
+    text-decoration: none;
+
+    &:hover {
+        color: var(--cinema-ink);
+        background: var(--cinema-glass-strong);
+    }
+}
+
+.cinema-avatar {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    margin-left: 4px;
+    overflow: hidden;
+    border-radius: 999px;
+    color: #0b0c14;
+    font-size: 0.8rem;
+    font-weight: 600;
+    background: linear-gradient(135deg, var(--cinema-accent), var(--cinema-accent-2));
+    text-decoration: none;
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+}
+
+@media (max-width: 900px) {
+    .cinema-topnav__links .cinema-navlink:not(.is-active) {
+        display: none;
+    }
+}
+
+// Side rail (TV)
+.cinema-rail {
+    position: fixed;
+    top: 50%;
+    left: 22px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 12px;
+    border-radius: 28px;
+    transform: translateY(-50%);
+
+    .cinema-navlink {
+        gap: 16px;
+        padding: 12px;
+        border-radius: 16px;
+        font-size: 1.1rem;
+    }
+
+    .cinema-navlink__label {
+        max-width: 0;
+        overflow: hidden;
+        opacity: 0;
+        transition: max-width 0.25s ease, opacity 0.2s ease;
+    }
+
+    &:focus-within .cinema-navlink__label,
+    &:hover .cinema-navlink__label {
+        max-width: 240px;
+        opacity: 1;
+    }
+}
+
+// Hero
+.cinema-hero {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    min-height: min(88vh, 960px);
+    padding: calc(var(--cinema-nav-offset) + 24px) var(--cinema-gutter) 32px;
+    overflow: hidden;
+    isolation: isolate;
+}
+
+.cinema-hero__backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    background-color: #141a35;
+    background-position: center top;
+    background-size: cover;
+    transition: opacity 0.6s ease;
+
+    &::after {
+        position: absolute;
+        inset: 0;
+        background:
+            linear-gradient(90deg, rgba(7, 8, 13, 0.92) 0%, rgba(7, 8, 13, 0.55) 38%, rgba(7, 8, 13, 0) 65%),
+            linear-gradient(0deg, var(--cinema-bg) 2%, rgba(7, 8, 13, 0.6) 32%, rgba(7, 8, 13, 0) 55%);
+        content: '';
+    }
+}
+
+.cinema-hero__body {
+    max-width: 660px;
+}
+
+.cinema-hero__logo {
+    display: block;
+    max-width: min(480px, 80%);
+    max-height: 160px;
+    margin-bottom: 20px;
+    object-fit: contain;
+    object-position: left bottom;
+}
+
+.cinema-hero__title {
+    margin: 0 0 16px;
+    font-size: clamp(2.4rem, 5vw, 4.6rem);
+    font-weight: 700;
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+}
+
+.cinema-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    color: var(--cinema-ink-2);
+    font-size: 0.95rem;
+}
+
+.cinema-chip {
+    padding: 3px 10px;
+    border-radius: 8px;
+    color: var(--cinema-ink);
+    font-size: 0.8rem;
+}
+
+.cinema-dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 4px;
+    background: var(--cinema-ink-3);
+}
+
+.cinema-hero__overview {
+    display: -webkit-box;
+    max-width: 580px;
+    margin: 14px 0 22px;
+    overflow: hidden;
+    color: var(--cinema-ink-2);
+    font-size: 1.05rem;
+    line-height: 1.55;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+}
+
+.cinema-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+}
+
+.cinema-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    height: 52px;
+    padding: 0 26px;
+    border: 0;
+    border-radius: 999px;
+    color: var(--cinema-ink);
+    font: inherit;
+    font-size: 1.05rem;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+
+    &.cinema-focusable:focus-visible {
+        transform: scale(1.05);
+    }
+}
+
+.cinema-btn--primary {
+    color: #0b0c14;
+    background: #fff;
+}
+
+.cinema-btn--round {
+    justify-content: center;
+    width: 52px;
+    padding: 0;
+}
+
+.cinema-pager {
+    display: flex;
+    gap: 6px;
+    margin-top: 26px;
+
+    button {
+        width: 22px;
+        height: 4px;
+        padding: 0;
+        border: 0;
+        border-radius: 4px;
+        background: rgba(255, 255, 255, 0.25);
+        cursor: pointer;
+        transition: width 0.25s ease, background-color 0.25s ease;
+
+        &.is-active {
+            width: 44px;
+            background: #fff;
+        }
+    }
+}
+
+// Rows
+.cinema-rows {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    padding: 8px 0 64px;
+}
+
+.cinema-row__title {
+    display: flex;
+    gap: 10px;
+    align-items: baseline;
+    margin: 0 var(--cinema-gutter) 10px;
+    font-size: 1.25rem;
+    font-weight: 500;
+}
+
+.cinema-row__count {
+    color: var(--cinema-ink-3);
+    font-size: 0.85rem;
+    font-weight: 400;
+}
+
+.cinema-row__track {
+    display: flex;
+    gap: 16px;
+    padding: 8px var(--cinema-gutter) 18px;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    scroll-padding: 0 var(--cinema-gutter);
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+// Cards
+.cinema-card {
+    position: relative;
+    display: block;
+    flex: none;
+    overflow: hidden;
+    border-radius: 14px;
+    color: var(--cinema-ink);
+    background-color: #1a1d2b;
+    background-position: center;
+    background-size: cover;
+    text-decoration: none;
+}
+
+.cinema-card--landscape {
+    width: var(--cinema-card-land);
+    aspect-ratio: 16 / 9;
+}
+
+.cinema-card--poster {
+    width: var(--cinema-card-poster);
+    aspect-ratio: 2 / 3;
+}
+
+.cinema-card--square {
+    width: var(--cinema-card-poster);
+    aspect-ratio: 1;
+}
+
+.cinema-card__shade {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    padding: 30px 14px 12px;
+    background: linear-gradient(0deg, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0));
+}
+
+.cinema-card__title {
+    display: block;
+    overflow: hidden;
+    font-size: 0.95rem;
+    font-weight: 500;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.cinema-card__subtitle {
+    display: block;
+    overflow: hidden;
+    color: var(--cinema-ink-2);
+    font-size: 0.8rem;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.cinema-card__fallback {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 12px;
+    color: var(--cinema-ink-3);
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.cinema-progress {
+    display: block;
+    height: 4px;
+    margin-top: 8px;
+    overflow: hidden;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.22);
+
+    span {
+        display: block;
+        height: 100%;
+        background: var(--cinema-accent);
+    }
+}
+
+.cinema-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 2px 9px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+}
+
+// Loading placeholders
+.cinema-skeleton {
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+    background-size: 200% 100%;
+    animation: cinema-shimmer 1.4s linear infinite;
+}
+
+@keyframes cinema-shimmer {
+    from {
+        background-position: 200% 0;
+    }
+
+    to {
+        background-position: -200% 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cinema-app * {
+        transition: none !important;
+        animation: none !important;
+    }
+}

@@ -1077,6 +1077,8 @@
     "LastActive": "Last active",
     "LastSeen": "Last activity {0}",
     "LatestFromLibrary": "Recently Added in {0}",
+    "LayoutCinema": "Cinema",
+    "LayoutCinemaTv": "Cinema (TV)",
     "LearnHowYouCanContribute": "Learn how you can contribute.",
     "LeaveBlankToNotSetAPassword": "You can leave this field blank to set no password.",
     "Letterer": "Letterer",

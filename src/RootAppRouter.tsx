@@ -8,6 +8,7 @@ import {
 } from 'react-router-dom';
 
 import { DASHBOARD_APP_PATHS, DASHBOARD_APP_ROUTES } from 'apps/dashboard/routes/routes';
+import { APP_ROUTES as CINEMA_APP_ROUTES } from 'apps/cinema/routes/routes';
 import { APP_ROUTES as MODERN_APP_ROUTES } from 'apps/modern/routes/routes';
 import { APP_ROUTES as LEGACY_APP_ROUTES } from 'apps/legacy/routes/routes';
 import { WIZARD_APP_ROUTES } from 'apps/wizard/routes/routes';
@@ -19,11 +20,16 @@ import { createRouterHistory } from 'components/router/routerHistory';
 import appTheme from 'themes';
 import { ThemeStorageManager } from 'themes/themeStorageManager';
 
+const getAppRoutes = () => {
+    if (layoutManager.cinema) return CINEMA_APP_ROUTES;
+    return layoutManager.modern ? MODERN_APP_ROUTES : LEGACY_APP_ROUTES;
+};
+
 const router = createHashRouter([
     {
         element: <RootAppLayout />,
         children: [
-            ...(layoutManager.modern ? MODERN_APP_ROUTES : LEGACY_APP_ROUTES),
+            ...getAppRoutes(),
             ...DASHBOARD_APP_ROUTES,
             ...WIZARD_APP_ROUTES,
             {

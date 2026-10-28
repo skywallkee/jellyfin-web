@@ -50,6 +50,8 @@ export function DisplayPreferences({ onChange, values }: Readonly<DisplayPrefere
                         <MenuItem value={LayoutMode.DesktopLegacy}>{globalize.translate('Desktop')}</MenuItem>
                         <MenuItem value={LayoutMode.MobileLegacy}>{globalize.translate('Mobile')}</MenuItem>
                         <MenuItem value={LayoutMode.Tv}>{globalize.translate('TV')}</MenuItem>
+                        <MenuItem value={LayoutMode.Cinema}>{globalize.translate('LayoutCinema')}</MenuItem>
+                        <MenuItem value={LayoutMode.CinemaTv}>{globalize.translate('LayoutCinemaTv')}</MenuItem>
                     </Select>
                     <FormHelperText component={Stack} id='display-settings-layout-description'>
                         <span>{globalize.translate('DisplayModeHelp')}</span>

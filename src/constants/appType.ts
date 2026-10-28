@@ -3,6 +3,8 @@
  * Used in route definitions to determine where to load relevant components from.
  */
 export enum AppType {
+    /** The cinematic app. */
+    Cinema = 'cinema',
     /** The admin dashboard app. */
     Dashboard = 'dashboard',
     /** The legacy app. */

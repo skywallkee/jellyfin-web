@@ -16,6 +16,8 @@ export interface AsyncRoute {
 
 const importRoute = (page: string, type: AppType) => {
     switch (type) {
+        case AppType.Cinema:
+            return import(/* webpackChunkName: "[request]" */ `../../apps/cinema/routes/${page}`);
         case AppType.Dashboard:
             return import(/* webpackChunkName: "[request]" */ `../../apps/dashboard/routes/${page}`);
         case AppType.Modern:

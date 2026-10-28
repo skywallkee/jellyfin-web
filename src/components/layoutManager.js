@@ -1,4 +1,4 @@
-import { LayoutMode, LegacyLayoutModes } from 'constants/layoutMode';
+import { CinemaLayoutModes, LayoutMode, LegacyLayoutModes } from 'constants/layoutMode';
 
 import { appHost } from './apphost';
 import browser from '../scripts/browser';
@@ -22,6 +22,10 @@ class LayoutManager {
     mobile = false;
     desktop = false;
     modern = false;
+    /** Whether the cinema app is used. */
+    cinema = false;
+    /** Whether the cinema app uses its TV (remote control) variant. */
+    cinemaTv = false;
 
     setLayout(layout = '', save = true) {
         const layoutValue = (!layout || layout === LayoutMode.Auto) ? '' : layout;
@@ -39,7 +43,9 @@ class LayoutManager {
 
         console.debug('[LayoutManager] using layout mode', normalizedLayout);
         this.modern = !isLegacyLayout;
-        if (layoutValue === LayoutMode.Modern) {
+        this.cinema = CinemaLayoutModes.has(layoutValue);
+        this.cinemaTv = layoutValue === LayoutMode.CinemaTv;
+        if (layoutValue === LayoutMode.Modern || this.cinema) {
             const legacyLayoutMode = browser.mobile ? LayoutMode.Mobile : LayoutMode.Desktop;
             console.debug('[LayoutManager] using legacy layout mode', legacyLayoutMode);
             setLayout(this, legacyLayoutMode, legacyLayoutMode);
