@@ -9,20 +9,36 @@ import { useApi } from 'hooks/useApi';
 import globalize from 'lib/globalize';
 import type { ItemDto } from 'types/base/models/item-dto';
 
+import BackgroundClip from '../../components/BackgroundClip';
 import { FavoriteButton, PlayedButton } from '../../components/ItemActions';
 import ItemMeta from '../../components/ItemMeta';
 import MediaRow from '../../components/MediaRow';
+import ScoreRings from '../../components/ScoreRings';
 import { getBackdropUrl, getLogoUrl, isMostlyWide } from '../../utils/images';
 import { formatRuntime, getDisplayTitle, getEpisodeLabel, getPeopleNames, getRemainingTicks, getStreamLanguages } from '../../utils/items';
 import { playItem } from '../../utils/actions';
+import { useAmbientTint } from '../../utils/ambient';
+import { getItemColor } from '../../utils/blurhash';
 
 import { useHideLegacyView } from '../../hooks/useHideLegacyView';
 
 import { useSeasons, useSeriesNextUp, useSimilarItems } from './api';
 import CastPanel from './CastPanel';
+import Overview from './Overview';
+import { useThemeMusic } from './useThemeMusic';
 import EpisodesPanel from './EpisodesPanel';
 
 const SERIES_TYPES = new Set([ 'Series', 'Season', 'Episode' ]);
+/** How long the artwork shows before a clip starts behind the details. */
+const CLIP_DELAY_MS = 2500;
+const TICKS_PER_MS = 10_000;
+
+/** "Ends at 11:42 PM": when the title would finish if started (or resumed) now. */
+const getEndsAt = (ticks?: number | null) => {
+    if (!ticks) return undefined;
+    const end = new Date(Date.now() + ticks / TICKS_PER_MS);
+    return globalize.translate('EndsAtValue', end.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' }));
+};
 
 interface Fact {
     label: string;
@@ -85,7 +101,7 @@ interface DetailsViewProps {
 
 const DetailsView: FC<DetailsViewProps> = ({ item, variant = 'page' }) => {
     // As a card it sits over whatever page is open, so only the full page replaces the previous view
-    useHideLegacyView(variant === 'page');
+    useHideLegacyView(variant === 'page', getDisplayTitle(item));
     const { api } = useApi();
     const isSeriesType = Boolean(item.Type && SERIES_TYPES.has(item.Type));
     const seriesId = item.Type === 'Series' ? item.Id : item.SeriesId;
@@ -95,11 +111,15 @@ const DetailsView: FC<DetailsViewProps> = ({ item, variant = 'page' }) => {
     const { target, isResumable, label: playLabel, nextUpEpisode } = usePlayTarget(item, seriesId);
 
     const [ chosenSeasonId, setChosenSeasonId ] = useState<string>();
+    useThemeMusic(item);
+    // The open card tints the whole screen behind it; the full page tints its own background
+    useAmbientTint(variant === 'modal' ? 'modal' : 'page', getItemColor(item));
     const playButtonRef = useRef<HTMLButtonElement>(null);
 
     // On TV, start with the remote on Play
     useEffect(() => {
-        if (layoutManager.cinemaTv) playButtonRef.current?.focus({ preventScroll: true });
+        // (unless a screen above the card, like the end screen after playback, has focus)
+        if (layoutManager.cinemaTv && !document.querySelector('.cinema-endscreen')) playButtonRef.current?.focus({ preventScroll: true });
     }, []);
 
     const selectedSeasonId = chosenSeasonId ?? getDefaultSeasonId(item, nextUpEpisode, seasons);
@@ -115,12 +135,19 @@ const DetailsView: FC<DetailsViewProps> = ({ item, variant = 'page' }) => {
     const isPlayable = Boolean(item.MediaType === 'Video' || item.Type === 'Series' || item.Type === 'Season');
     const showSimilar = item.Type !== 'Episode' && (isSimilarPending || Boolean(similar?.length));
     const hasTrailer = Boolean(item.LocalTrailerCount || item.RemoteTrailers?.length);
+    const endsAt = isPlayable ? getEndsAt(getRemainingTicks(target) ?? target.RunTimeTicks) : undefined;
 
     return (
         <div className={classNames('cinema-details', `cinema-details--${variant}`)}>
             <div
                 className='cinema-hero__backdrop cinema-details__backdrop'
                 style={backdropUrl ? { backgroundImage: `url("${backdropUrl}")` } : undefined}
+            />
+            <BackgroundClip
+                key={target.Id}
+                item={target}
+                delayMs={CLIP_DELAY_MS}
+                className='cinema-details__clip'
             />
 
             <div className='cinema-details__grid'>
@@ -132,8 +159,9 @@ const DetailsView: FC<DetailsViewProps> = ({ item, variant = 'page' }) => {
                     {tagline && <p className='cinema-details__tagline'>{tagline}</p>}
 
                     <ItemMeta item={item} showQuality />
+                    {endsAt && <p className='cinema-details__endsat'>{endsAt}</p>}
 
-                    {item.Overview && <p className='cinema-details__overview'>{item.Overview}</p>}
+                    {item.Overview && <Overview text={item.Overview} />}
 
                     <div className='cinema-actions'>
                         {isPlayable && (
@@ -160,6 +188,8 @@ const DetailsView: FC<DetailsViewProps> = ({ item, variant = 'page' }) => {
                         <PlayedButton item={item} />
                         <FavoriteButton item={item} />
                     </div>
+
+                    <ScoreRings item={item} />
 
                     {facts.length > 0 && (
                         <dl className='cinema-facts'>

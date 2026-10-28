@@ -8,12 +8,23 @@ export interface CinemaSettings {
     videoPreviews: boolean;
     /** Use solid panels instead of see-through glass. */
     reduceTransparency: boolean;
+    /** Soft ticks when moving focus and selecting with a remote. Unset means on for TV, off otherwise. */
+    interfaceSounds?: boolean;
+    /** A faint film-grain and vignette finish over artwork. */
+    filmGrain: boolean;
+    /** Show a slideshow of artwork with a clock after a few idle minutes. */
+    screensaver: boolean;
+    /** Play a title's theme song quietly while its details are open. */
+    themeMusic: boolean;
 }
 
 export const DEFAULT_SETTINGS: CinemaSettings = {
     theme: 'midnight',
     videoPreviews: true,
-    reduceTransparency: false
+    reduceTransparency: false,
+    filmGrain: true,
+    screensaver: true,
+    themeMusic: true
 };
 
 const STORAGE_KEY = 'cinema-settings';
@@ -40,6 +51,9 @@ const subscribe = (listener: () => void) => {
 
 const getSnapshot = () => current;
 
+/** The current settings, for code outside React (e.g. sounds played from key handlers). */
+export const getCinemaSettings = () => current;
+
 export const updateCinemaSettings = (changes: Partial<CinemaSettings>) => {
     current = { ...current, ...changes };
     try {
@@ -56,3 +70,13 @@ export const useCinemaSettings = () => {
     const update = useCallback((changes: Partial<CinemaSettings>) => updateCinemaSettings(changes), []);
     return [ settings, update ] as const;
 };
+
+let soundsByDefault = false;
+
+/** Sets whether sounds are on when the user hasn't chosen: the app turns them on for the TV layout. */
+export const setSoundsOnByDefault = (isOn: boolean) => {
+    soundsByDefault = isOn;
+};
+
+/** Whether interface sounds are on: the user's choice, or the layout's default. */
+export const areSoundsEnabled = (settings: CinemaSettings) => settings.interfaceSounds ?? soundsByDefault;

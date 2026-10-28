@@ -21,6 +21,7 @@ import type { ItemDto } from 'types/base/models/item-dto';
 
 import { playItem } from '../utils/actions';
 import { useItemLink } from '../hooks/useItemLink';
+import { useClipTurn } from '../utils/clip';
 import { getBackdropUrl, getLandscapeUrl } from '../utils/images';
 import { getDisplayTitle, getRemainingTicks } from '../utils/items';
 import { useCinemaSettings } from '../utils/settings';
@@ -86,14 +87,20 @@ const PreviewVideo: FC<{ item: ItemDto }> = ({ item }) => {
         return () => window.clearTimeout(timer);
     }, []);
 
-    // Stop downloading as soon as the preview closes
-    useEffect(() => () => {
+    // Takes the turn from the hero's clip, which pauses until this preview closes
+    useClipTurn(isStarted);
+
+    // Stop downloading as soon as the preview closes (the element is captured when it appears,
+    // since React has already cleared the ref by the time an unmount cleanup runs)
+    useEffect(() => {
         const video = videoRef.current;
-        if (video) {
+        if (!video) return;
+        return () => {
+            video.pause();
             video.removeAttribute('src');
             video.load();
-        }
-    }, []);
+        };
+    }, [ isStarted ]);
 
     if (!api || !item.Id || !isStarted) return null;
 

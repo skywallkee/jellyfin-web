@@ -203,7 +203,9 @@
     }
 }
 
-@media (max-width: 900px) {
+// Mid-size screens: only the current page's link fits beside the icons
+// (phones get the bottom tab bar instead, with every link)
+@media (min-width: 701px) and (max-width: 900px) {
     .cinema-topnav__links .cinema-navlink:not(.is-active) {
         display: none;
     }
@@ -968,7 +970,8 @@
     display: flex;
     gap: 10px;
     align-items: center;
-    max-width: 760px;
+    // Never wider than the page's side margins allow, so it doesn't touch the screen edges on phones
+    max-width: min(760px, calc(100% - 2 * var(--cinema-gutter)));
     margin: 0 auto 28px;
     padding: 6px 10px 6px 20px;
     border-radius: 999px;

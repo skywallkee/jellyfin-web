@@ -5,7 +5,8 @@ import layoutManager from 'components/layoutManager';
 import { LayoutMode } from 'constants/layoutMode';
 import globalize from 'lib/globalize';
 
-import { type CinemaThemeId, useCinemaSettings } from '../utils/settings';
+import { playSound } from '../utils/sounds';
+import { areSoundsEnabled, type CinemaThemeId, useCinemaSettings } from '../utils/settings';
 
 const THEMES: { id: CinemaThemeId; labelKey: string }[] = [
     { id: 'midnight', labelKey: 'CinemaThemeMidnight' },
@@ -52,7 +53,7 @@ const onLayoutChange = (mode: LayoutMode, currentLayout: LayoutMode) => {
     window.location.reload();
 };
 
-/** Cinema's own options: theme, video previews, transparency and layout. Used in the panel and on the settings page. */
+/** Cinema's own options: theme, video previews, transparency, finish, sounds, screensaver and layout. Used in the panel and on the settings page. */
 const CinemaSettingsControls: FC = () => {
     const [ settings, updateSettings ] = useCinemaSettings();
     const currentLayout = layoutManager.cinemaTv ? LayoutMode.CinemaTv : LayoutMode.Cinema;
@@ -86,6 +87,34 @@ const CinemaSettingsControls: FC = () => {
                 help={globalize.translate('CinemaReduceTransparencyHelp')}
                 checked={settings.reduceTransparency}
                 onChange={reduceTransparency => updateSettings({ reduceTransparency })}
+            />
+            <Toggle
+                label={globalize.translate('CinemaFilmGrain')}
+                help={globalize.translate('CinemaFilmGrainHelp')}
+                checked={settings.filmGrain}
+                onChange={filmGrain => updateSettings({ filmGrain })}
+            />
+            <Toggle
+                label={globalize.translate('CinemaInterfaceSounds')}
+                help={globalize.translate('CinemaInterfaceSoundsHelp')}
+                checked={areSoundsEnabled(settings)}
+                onChange={interfaceSounds => {
+                    updateSettings({ interfaceSounds });
+                    // Let the user hear what they turned on
+                    playSound('select');
+                }}
+            />
+            <Toggle
+                label={globalize.translate('CinemaThemeMusic')}
+                help={globalize.translate('CinemaThemeMusicHelp')}
+                checked={settings.themeMusic}
+                onChange={themeMusic => updateSettings({ themeMusic })}
+            />
+            <Toggle
+                label={globalize.translate('LabelScreensaver')}
+                help={globalize.translate('CinemaScreensaverHelp')}
+                checked={settings.screensaver}
+                onChange={screensaver => updateSettings({ screensaver })}
             />
 
             <h3 className='cinema-settings__label'>{globalize.translate('LabelDisplayMode')}</h3>

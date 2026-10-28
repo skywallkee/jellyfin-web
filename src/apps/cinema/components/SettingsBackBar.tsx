@@ -12,7 +12,8 @@ export const SETTINGS_SUBPAGES = new Set([
     '/mypreferencesplayback',
     '/mypreferencessubtitles',
     '/mypreferencescontrols',
-    '/quickconnect'
+    '/quickconnect',
+    '/cinemastats'
 ]);
 
 /** A "← All settings" link shown above each settings page. */

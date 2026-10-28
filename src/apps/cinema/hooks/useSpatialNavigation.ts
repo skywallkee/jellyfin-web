@@ -1,5 +1,7 @@
 import { useEffect } from 'react';
 
+import { playSound } from '../utils/sounds';
+
 type Direction = 'up' | 'down' | 'left' | 'right';
 
 const KEY_DIRECTIONS: Record<string, Direction> = {
@@ -64,8 +66,8 @@ const isInFixedContainer = (el: HTMLElement) => {
     return false;
 };
 
-/** Panels that keep arrow-key focus inside them while open. */
-const TRAP_SELECTOR = '.cinema-settings, .cinema-modal';
+/** Panels and screens that keep arrow-key focus inside them while open. */
+const TRAP_SELECTOR = '.cinema-settings, .cinema-modal, .cinema-endscreen, .cinema-surprise, .cinema-shortcuts';
 
 /** The navigation bar and TV rail form their own zone, separate from the page content. */
 const NAV_SELECTOR = '.cinema-rail, .cinema-topnav';
@@ -125,6 +127,16 @@ const focusElement = (el: HTMLElement, direction?: Direction) => {
     });
 };
 
+const BUMP_MS = 260;
+
+/** A small nudge when there's nowhere further to go, so a key press never feels ignored. */
+const bump = (el: HTMLElement, direction: Direction) => {
+    el.dataset.cinemaBump = direction;
+    window.setTimeout(() => {
+        if (el.dataset.cinemaBump === direction) delete el.dataset.cinemaBump;
+    }, BUMP_MS);
+};
+
 /**
  * Moves focus with the arrow keys, like a TV remote, and goes back with Backspace.
  * Used by the Cinema layout in TV mode.
@@ -141,7 +153,13 @@ export const useSpatialNavigation = (enabled: boolean) => {
             // Remote "Back" keys are already handled by scripts/keyboardNavigation, so only Backspace is added here
             if (e.key === 'Backspace' && !isTextEntry(active)) {
                 e.preventDefault();
+                playSound('back');
                 window.history.back();
+                return;
+            }
+
+            if (e.key === 'Enter' && active && active !== document.body && !isTextEntry(active)) {
+                playSound('select');
                 return;
             }
 
@@ -154,16 +172,23 @@ export const useSpatialNavigation = (enabled: boolean) => {
 
             // Only move between elements of the app itself, not overlays such as dev tools.
             // An open panel (like settings) keeps focus inside it until it's closed.
-            const scope = active?.closest(TRAP_SELECTOR) ?? document.querySelector('.cinema-app') ?? document;
+            // An open panel keeps focus inside even when focus has strayed outside it (e.g. to the page
+            // after the focused element went away); the most recently opened one comes last in the page
+            // Of several (e.g. the end screen over a details card), the last opened, last in the page, wins
+            const openTraps = document.querySelectorAll(TRAP_SELECTOR);
+            const scope = openTraps[openTraps.length - 1]
+                ?? document.querySelector('.cinema-app')
+                ?? document;
             const candidates = Array.from(scope.querySelectorAll<HTMLElement>(FOCUSABLE_QUERY)).filter(isVisible);
             if (!candidates.length) return;
 
             e.preventDefault();
 
             if (!active || active === document.body || !candidates.includes(active)) {
-                // Start in the page content rather than the navigation
+                // Start on the page's main action (e.g. the hero's Play), else the first thing in the page content
                 const main = document.querySelector('.cinema-main');
-                focusElement(candidates.find(el => main?.contains(el)) ?? candidates[0]);
+                const primary = candidates.find(el => el.classList.contains('cinema-btn--primary') && (scope !== document.querySelector('.cinema-app') || main?.contains(el)));
+                focusElement(primary ?? candidates.find(el => main?.contains(el)) ?? candidates[0]);
                 return;
             }
 
@@ -177,7 +202,12 @@ export const useSpatialNavigation = (enabled: boolean) => {
             const next = isHorizontal ?
                 findNext(active, direction, candidates, true) ?? findNext(active, direction, otherZone) :
                 findNext(active, direction, sameZone);
-            if (next) focusElement(next, direction);
+            if (next) {
+                focusElement(next, direction);
+                playSound('move');
+            } else {
+                bump(active, direction);
+            }
         };
 
         window.addEventListener('keydown', onKeyDown);

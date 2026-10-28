@@ -6,6 +6,8 @@ import React, { type FC, useCallback, useEffect, useState } from 'react';
 
 import { useToggleFavoriteMutation, useTogglePlayedMutation } from 'hooks/useFetchItems';
 import globalize from 'lib/globalize';
+
+import { refreshUserData } from '../utils/refresh';
 import type { ItemDto } from 'types/base/models/item-dto';
 
 /**
@@ -18,8 +20,21 @@ const useOptimisticFlag = (value: boolean) => {
     return [ flag, setFlag ] as const;
 };
 
+const BURST_PARTICLES = 10;
+
+/** A ring of little hearts and sparks flying out of the button. */
+const Burst: FC = () => (
+    <span className='cinema-burst' aria-hidden='true'>
+        {Array.from({ length: BURST_PARTICLES }, (_, i) => (
+            <i key={i} style={{ '--cinema-angle': `${(360 / BURST_PARTICLES) * i}deg` } as React.CSSProperties} />
+        ))}
+    </span>
+);
+
 export const FavoriteButton: FC<{ item: ItemDto }> = ({ item }) => {
     const [ isFavorite, setIsFavorite ] = useOptimisticFlag(Boolean(item.UserData?.IsFavorite));
+    // Counts favourites given here, so each one plays a fresh burst
+    const [ burstCount, setBurstCount ] = useState(0);
     const { mutate } = useToggleFavoriteMutation();
     const queryClient = useQueryClient();
 
@@ -27,11 +42,12 @@ export const FavoriteButton: FC<{ item: ItemDto }> = ({ item }) => {
         if (!item.Id) return;
         const wasFavorite = isFavorite;
         setIsFavorite(!wasFavorite);
+        if (!wasFavorite) setBurstCount(c => c + 1);
         mutate(
             { itemId: item.Id, isFavorite: wasFavorite },
             {
                 onError: () => setIsFavorite(wasFavorite),
-                onSettled: () => queryClient.invalidateQueries({ queryKey: [ 'User' ] })
+                onSettled: () => refreshUserData(queryClient)
             }
         );
     }, [ isFavorite, item.Id, mutate, queryClient, setIsFavorite ]);
@@ -39,7 +55,7 @@ export const FavoriteButton: FC<{ item: ItemDto }> = ({ item }) => {
     return (
         <button
             type='button'
-            className='cinema-btn cinema-btn--round cinema-glass cinema-focusable'
+            className='cinema-btn cinema-btn--round cinema-glass cinema-focusable cinema-has-burst'
             onClick={onClick}
             aria-pressed={isFavorite}
             aria-label={globalize.translate('Favorite')}
@@ -49,6 +65,7 @@ export const FavoriteButton: FC<{ item: ItemDto }> = ({ item }) => {
             {isFavorite ?
                 <Favorite key='on' className='cinema-pop cinema-heart' /> :
                 <FavoriteBorder key='off' />}
+            {isFavorite && burstCount > 0 && <Burst key={burstCount} />}
         </button>
     );
 };
@@ -68,7 +85,7 @@ export const PlayedButton: FC<{ item: ItemDto }> = ({ item }) => {
             {
                 onError: () => setIsPlayed(wasPlayed),
                 // Progress, Next Up and episode lists all depend on played state
-                onSettled: () => queryClient.invalidateQueries({ queryKey: [ 'User' ] })
+                onSettled: () => refreshUserData(queryClient)
             }
         );
     }, [ isPlayed, item.Id, mutate, queryClient, setIsPlayed ]);

@@ -8,12 +8,16 @@ import React, { type FC, useMemo } from 'react';
 import { useLatestMedia } from 'apps/legacy/features/libraries/api/useLatestMedia';
 import { useNextUp } from 'apps/legacy/features/libraries/api/useNextUp';
 import { useResumeItems } from 'apps/legacy/features/libraries/api/useResumeItems';
+import { appRouter } from 'components/router/appRouter';
 import { useUserViews } from 'hooks/api/useUserViews';
 import { useApi } from 'hooks/useApi';
 import globalize from 'lib/globalize';
 import type { ItemDto } from 'types/base/models/item-dto';
 
 import HeroBanner from '../components/HeroBanner';
+import LazySection from '../components/LazySection';
+import { type WatchedSeed, useFavorites, useRecentlyWatched, useTopRated } from '../features/home/api';
+import { useSimilarItems } from '../features/details/api';
 import { useHideLegacyView } from '../hooks/useHideLegacyView';
 import type { CardShape } from '../components/MediaCard';
 import MediaRow from '../components/MediaRow';
@@ -22,7 +26,7 @@ import { formatRuntime, getRemainingTicks } from '../utils/items';
 
 const ROW_LIMIT = 16;
 const HERO_LIMIT = 5;
-const FIELDS = [ ItemFields.Overview, ItemFields.Genres, ItemFields.PrimaryImageAspectRatio ];
+const FIELDS = [ ItemFields.Overview, ItemFields.Genres, ItemFields.PrimaryImageAspectRatio, ItemFields.DateCreated ];
 const IMAGE_TYPES = [ ImageType.Primary, ImageType.Backdrop, ImageType.Thumb, ImageType.Logo ];
 
 /** Libraries that get a "Recently added" row, and the card shape each uses. */
@@ -45,6 +49,60 @@ const getEpisodeName = (item: ItemDto) => item.Name ?? undefined;
 
 const getYear = (item: ItemDto) => item.ProductionYear?.toString();
 
+const getGreetingKey = (hour: number) => {
+    if (hour < 5) return 'CinemaGreetingNight';
+    if (hour < 12) return 'CinemaGreetingMorning';
+    if (hour < 18) return 'CinemaGreetingAfternoon';
+    return 'CinemaGreetingEvening';
+};
+
+/** "Good evening, Alex" over the rows, a small human touch. */
+const Greeting: FC<{ name?: string | null }> = ({ name }) => (
+    <p className='cinema-greeting'>
+        {globalize.translate(getGreetingKey(new Date().getHours()), name ?? '')}
+    </p>
+);
+
+/** "Because you watched X": titles similar to something the user watched recently. */
+const BecauseRow: FC<{ seed: WatchedSeed }> = ({ seed }) => {
+    const { data, isPending } = useSimilarItems(seed.id);
+    return (
+        <MediaRow
+            title={globalize.translate('CinemaBecauseYouWatched', seed.name)}
+            items={data}
+            isPending={isPending}
+            shape={isMostlyWide(data) ? 'landscape' : 'poster'}
+            getSubtitle={getYear}
+        />
+    );
+};
+
+/** "Because you watched…" for the n-th most recently watched title, if there is one. */
+const BecauseSlot: FC<{ index: number }> = ({ index }) => {
+    const { data: seeds } = useRecentlyWatched();
+    const seed = seeds?.[index];
+    return seed ? <BecauseRow seed={seed} /> : null;
+};
+
+/** Top 10, only worth showing once there's a decent number of rated titles. */
+const TopTenRow: FC = () => {
+    const { data } = useTopRated();
+    if ((data?.length ?? 0) < 5) return null;
+    return <MediaRow title={globalize.translate('CinemaTopTen')} items={data} shape='poster' isRanked />;
+};
+
+const FavoritesRow: FC = () => {
+    const { data } = useFavorites();
+    return (
+        <MediaRow
+            title={globalize.translate('Favorites')}
+            items={data}
+            shape={isMostlyWide(data) ? 'landscape' : 'poster'}
+            getSubtitle={getYear}
+        />
+    );
+};
+
 const LatestRow: FC<{ library: ItemDto }> = ({ library }) => {
     const { data, isPending } = useLatestMedia({
         parentId: library.Id ?? undefined,
@@ -64,12 +122,13 @@ const LatestRow: FC<{ library: ItemDto }> = ({ library }) => {
             isPending={isPending}
             shape={shape}
             getSubtitle={getYear}
+            seeAllTo={appRouter.getRouteUrl(library, { context: library.CollectionType ?? undefined }).substring(1)}
         />
     );
 };
 
 const Home: FC = () => {
-    useHideLegacyView();
+    useHideLegacyView(true, globalize.translate('Home'));
     const { user } = useApi();
     const commonParams = {
         fields: FIELDS,
@@ -123,12 +182,14 @@ const Home: FC = () => {
                 <div style={{ height: 'var(--cinema-nav-offset)' }} />}
 
             <div className='cinema-rows'>
+                <Greeting name={user?.Name} />
                 <MediaRow
                     title={globalize.translate('HeaderContinueWatching')}
                     items={resumeItems}
                     isPending={resume.isPending}
                     shape='landscape'
                     showProgress
+                    canResume
                     getSubtitle={getResumeSubtitle}
                 />
                 <MediaRow
@@ -138,9 +199,24 @@ const Home: FC = () => {
                     shape='landscape'
                     getSubtitle={getEpisodeName}
                 />
-                {libraries.map(library => (
-                    <LatestRow key={library.Id} library={library} />
+                {/* Everything below loads as it comes near the screen, or in the background once the page has settled */}
+                <LazySection hasPlaceholder={false}>
+                    <TopTenRow />
+                </LazySection>
+                {libraries.map((library, i) => (
+                    <React.Fragment key={library.Id}>
+                        <LazySection shape={LATEST_ROW_SHAPES[library.CollectionType ?? '']}>
+                            <LatestRow library={library} />
+                        </LazySection>
+                        {/* Personal picks sit between the library rows, so they're found early */}
+                        <LazySection hasPlaceholder={false}>
+                            <BecauseSlot index={i} />
+                        </LazySection>
+                    </React.Fragment>
                 ))}
+                <LazySection hasPlaceholder={false}>
+                    <FavoritesRow />
+                </LazySection>
             </div>
         </div>
     );

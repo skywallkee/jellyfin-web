@@ -1,0 +1,85 @@
+// Cinema: keeping it fast. Loaded last, so these refine the effects defined before.
+
+// Ambient light: each colour is its own layer, faded in and out by opacity alone (cheap for the
+// graphics card) instead of animating the gradient's colour, which repaints the whole screen.
+.cinema-ambient {
+    transition: none;
+    will-change: opacity;
+    animation: cinema-light-in 1.2s ease both;
+
+    &:not(.is-tinted) {
+        animation: none;
+    }
+
+    &.is-tinted.is-leaving {
+        animation: cinema-light-out 1.2s ease both;
+    }
+}
+
+@keyframes cinema-light-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 0.2;
+    }
+}
+
+@keyframes cinema-light-out {
+    from {
+        opacity: 0.2;
+    }
+
+    to {
+        opacity: 0;
+    }
+}
+
+// Big decorative layers get their own compositing layer, and the grain covers far less area
+.cinema-aurora,
+.cinema-grain {
+    will-change: transform;
+}
+
+.cinema-grain {
+    inset: -12%;
+}
+
+// Cards out of view skip layout and painting entirely until they come near the screen.
+// Their size is known from their width and aspect ratio, so nothing jumps.
+.cinema-card {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 260px;
+}
+
+// While the page scrolls, decorative motion holds still and cards ignore the pointer,
+// so every frame goes to scrolling. Rows still scroll sideways under the pointer.
+html.cinema-scrolling {
+    .cinema-aurora,
+    .cinema-grain,
+    .cinema-hero__backdrop {
+        animation-play-state: paused;
+    }
+
+    .cinema-card,
+    .cinema-genre {
+        pointer-events: none;
+    }
+}
+
+// Waiting sections: a skeleton title, and a tiny marker for sections that may turn out empty
+.cinema-row__title--placeholder {
+    display: block;
+    width: 220px;
+    height: 1.3em;
+    border-radius: 8px;
+}
+
+// Out of the row flow (so it adds no gap), but still at its place in the page for the observer
+.cinema-lazy-sentinel {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+}

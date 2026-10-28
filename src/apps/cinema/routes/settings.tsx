@@ -7,6 +7,7 @@ import DownloadOutlined from '@mui/icons-material/DownloadOutlined';
 import EditNoteOutlined from '@mui/icons-material/EditNoteOutlined';
 import ExitToApp from '@mui/icons-material/ExitToApp';
 import HomeOutlined from '@mui/icons-material/HomeOutlined';
+import InsightsOutlined from '@mui/icons-material/InsightsOutlined';
 import Logout from '@mui/icons-material/Logout';
 import PhonelinkLockOutlined from '@mui/icons-material/PhonelinkLockOutlined';
 import PlayCircleOutline from '@mui/icons-material/PlayCircleOutline';
@@ -74,7 +75,7 @@ const TileSection: FC<{ titleKey?: string; tiles: (Tile | false)[]; offset?: num
 };
 
 const Settings: FC = () => {
-    useHideLegacyView();
+    useHideLegacyView(true, globalize.translate('Settings'));
     const { api, user } = useApi();
     const { data: isQuickConnectEnabled } = useQuickConnectEnabled();
     const userId = user?.Id;
@@ -87,6 +88,7 @@ const Settings: FC = () => {
         undefined;
 
     const preferenceTiles: (Tile | false)[] = [
+        { key: 'stats', labelKey: 'CinemaYourCinema', icon: <InsightsOutlined />, to: '/cinemastats' },
         { key: 'profile', labelKey: 'Profile', icon: <AccountCircleOutlined />, to: `/userprofile${query}` },
         { key: 'display', labelKey: 'Display', icon: <DesktopWindowsOutlined />, to: `/mypreferencesdisplay${query}` },
         { key: 'home', labelKey: 'Home', icon: <HomeOutlined />, to: `/mypreferenceshome${query}` },

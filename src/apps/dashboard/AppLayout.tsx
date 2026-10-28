@@ -12,6 +12,7 @@ import AppToolbar from 'components/toolbar/AppToolbar';
 import ServerButton from 'components/toolbar/ServerButton';
 import { DRAWER_WIDTH } from 'components/ResponsiveDrawer';
 import { appRouter } from 'components/router/appRouter';
+import CinemaDashboardSkin from 'apps/cinema/dashboard/CinemaDashboardSkin';
 import ThemeCss from 'components/ThemeCss';
 import { useApi } from 'hooks/useApi';
 import { useLocale } from 'hooks/useLocale';
@@ -49,69 +50,72 @@ export const Component: FC = () => {
 
     return (
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={dateFnsLocale}>
-            <Box
-                sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    minHeight: '100%'
-                }}
-            >
-                <StrictMode>
-                    <OffsetAppBar
-                        dense
-                        sx={{
-                            width: {
-                                xs: '100%',
-                                md: isDrawerAvailable ? `calc(100% - ${DRAWER_WIDTH}px)` : '100%'
-                            },
-                            ml: {
-                                xs: 0,
-                                md: isDrawerAvailable ? DRAWER_WIDTH : 0
-                            }
-                        }}
-                    >
-                        <AppToolbar
-                            isBackButtonAvailable={appRouter.canGoBack()}
-                            isDrawerAvailable={!isMediumScreen && isDrawerAvailable}
-                            isDrawerOpen={isDrawerOpen}
-                            onDrawerButtonClick={onToggleDrawer}
-                            buttons={
-                                <HelpButton />
-                            }
-                            className='dashboard-appBar'
-                        >
-                            {isMetadataManager && (
-                                <ServerButton />
-                            )}
-
-                            <AppTabs isDrawerOpen={isDrawerOpen} />
-                        </AppToolbar>
-                    </OffsetAppBar>
-
-                    {
-                        isDrawerAvailable && (
-                            <AppDrawer
-                                open={isDrawerOpen}
-                                onClose={onToggleDrawer}
-                                onOpen={onToggleDrawer}
-                            />
-                        )
-                    }
-                </StrictMode>
-
+            {/* With the Cinema layout, the dashboard takes on the Cinema look */}
+            <CinemaDashboardSkin>
                 <Box
-                    component='main'
                     sx={{
-                        position: 'relative',
-                        width: '100%',
-                        flexGrow: 1
+                        display: 'flex',
+                        flexDirection: 'column',
+                        minHeight: '100%'
                     }}
                 >
-                    <AppBody>
-                        <Outlet />
-                    </AppBody>
+                    <StrictMode>
+                        <OffsetAppBar
+                            dense
+                            sx={{
+                                width: {
+                                    xs: '100%',
+                                    md: isDrawerAvailable ? `calc(100% - ${DRAWER_WIDTH}px)` : '100%'
+                                },
+                                ml: {
+                                    xs: 0,
+                                    md: isDrawerAvailable ? DRAWER_WIDTH : 0
+                                }
+                            }}
+                        >
+                            <AppToolbar
+                                isBackButtonAvailable={appRouter.canGoBack()}
+                                isDrawerAvailable={!isMediumScreen && isDrawerAvailable}
+                                isDrawerOpen={isDrawerOpen}
+                                onDrawerButtonClick={onToggleDrawer}
+                                buttons={
+                                    <HelpButton />
+                                }
+                                className='dashboard-appBar'
+                            >
+                                {isMetadataManager && (
+                                    <ServerButton />
+                                )}
+
+                                <AppTabs isDrawerOpen={isDrawerOpen} />
+                            </AppToolbar>
+                        </OffsetAppBar>
+
+                        {
+                            isDrawerAvailable && (
+                                <AppDrawer
+                                    open={isDrawerOpen}
+                                    onClose={onToggleDrawer}
+                                    onOpen={onToggleDrawer}
+                                />
+                            )
+                        }
+                    </StrictMode>
+
+                    <Box
+                        component='main'
+                        sx={{
+                            position: 'relative',
+                            width: '100%',
+                            flexGrow: 1
+                        }}
+                    >
+                        <AppBody>
+                            <Outlet />
+                        </AppBody>
+                    </Box>
                 </Box>
-            </Box>
+            </CinemaDashboardSkin>
             <ThemeCss dashboard />
         </LocalizationProvider>
     );

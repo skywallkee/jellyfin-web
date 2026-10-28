@@ -9,13 +9,11 @@ import { Link, useLocation } from 'react-router-dom';
 
 import { useApi } from 'hooks/useApi';
 import globalize from 'lib/globalize';
-import { getKeyName } from 'scripts/keyboardNavigation';
 import Dashboard from 'utils/dashboard';
 
-import CinemaSettingsControls from './CinemaSettingsControls';
+import { useOverlay } from '../hooks/useOverlay';
 
-/** Keys that close the panel: Escape, Backspace, and the Back button on remotes. */
-const CLOSE_KEYS = new Set([ 'Escape', 'Backspace', 'Back', 'GoBack', 'BrowserBack' ]);
+import CinemaSettingsControls from './CinemaSettingsControls';
 
 interface SettingsPanelProps {
     onClose: () => void;
@@ -35,26 +33,17 @@ const SettingsPanel: FC<SettingsPanelProps> = ({ onClose, placement }) => {
         panelRef.current?.querySelector<HTMLElement>('[aria-pressed="true"]')?.focus({ preventScroll: true });
     }, []);
 
-    // Close on Escape, on a click outside, or when a link inside navigates away
+    // Escape / Back close the panel (as the top overlay), before the app's own Back handling
+    useOverlay(true, onClose);
+
+    // Close on a click outside, or when a link inside navigates away
     useEffect(() => {
-        const onKeyDown = (e: KeyboardEvent) => {
-            // getKeyName also maps TV remotes' numeric Back codes (webOS, Tizen) to 'Back'
-            if (!CLOSE_KEYS.has(getKeyName(e))) return;
-            // Handled before the app's own Back handling, so Back closes the panel instead of leaving the page
-            e.preventDefault();
-            e.stopPropagation();
-            onClose();
-        };
         const onPointerDown = (e: PointerEvent) => {
             const target = e.target as HTMLElement;
             if (!panelRef.current?.contains(target) && !target.closest('[data-cinema-settings-toggle]')) onClose();
         };
-        window.addEventListener('keydown', onKeyDown, { capture: true });
         window.addEventListener('pointerdown', onPointerDown);
-        return () => {
-            window.removeEventListener('keydown', onKeyDown, { capture: true });
-            window.removeEventListener('pointerdown', onPointerDown);
-        };
+        return () => window.removeEventListener('pointerdown', onPointerDown);
     }, [ onClose ]);
 
     useEffect(() => {

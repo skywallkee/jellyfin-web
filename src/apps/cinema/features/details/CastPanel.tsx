@@ -3,10 +3,11 @@ import { getImageApi } from '@jellyfin/sdk/lib/utils/api/image-api';
 import React, { type FC } from 'react';
 import { Link } from 'react-router-dom';
 
-import { appRouter } from 'components/router/appRouter';
 import { useApi } from 'hooks/useApi';
 import globalize from 'lib/globalize';
 import type { ItemDto } from 'types/base/models/item-dto';
+
+import { useItemLink } from '../../hooks/useItemLink';
 
 const MAX_CAST = 16;
 /** Crew roles shown after the actors. */
@@ -18,6 +19,7 @@ interface CastPanelProps {
 
 const CastPanel: FC<CastPanelProps> = ({ item }) => {
     const { api } = useApi();
+    const getItemLink = useItemLink();
     const people = item.People ?? [];
     const cast = [
         ...people.filter(person => person.Type === 'Actor' || person.Type === 'GuestStar'),
@@ -37,13 +39,14 @@ const CastPanel: FC<CastPanelProps> = ({ item }) => {
                             maxWidth: 160
                         }) :
                         undefined;
-                    const to = appRouter.getRouteUrl({ Id: person.Id, Type: 'Person', ServerId: item.ServerId }).substring(1);
+                    // Opens the person's own card in place of this one
+                    const link = getItemLink({ Id: person.Id, Type: 'Person', ServerId: item.ServerId } as ItemDto);
                     const role = person.Role || (person.Type ? globalize.translate(person.Type) : undefined);
 
                     return (
                         <Link
                             key={`${person.Id}-${person.Type}-${person.Role}`}
-                            to={to}
+                            {...link}
                             className='cinema-person cinema-focusable'
                         >
                             <span

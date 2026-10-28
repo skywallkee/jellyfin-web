@@ -1,0 +1,164 @@
+// The video element lives outside the app, underneath it: let it show through
+.cinema-app.cinema-app--video {
+    background: transparent;
+    isolation: auto;
+
+    .cinema-main,
+    .mainAnimatedPages,
+    .mainAnimatedPage,
+    .cinema-page {
+        background: transparent;
+    }
+}
+
+// Cinema: the video player's on-screen controls and "Up next" card, in Cinema's glass style.
+// Only the look changes; the player's own markup and behaviour are untouched.
+
+.cinema-app #videoOsdPage {
+    // The legacy page offset doesn't apply over a full-screen video
+    padding-top: 0 !important;
+    background: transparent;
+
+    .videoOsdBottom {
+        padding: 120px var(--cinema-gutter) 28px;
+        background: linear-gradient(0deg, rgba(0, 0, 0, 0.88) 0%, rgba(0, 0, 0, 0.55) 45%, rgba(0, 0, 0, 0) 100%);
+        transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .videoOsdBottom-hidden {
+        transform: translateY(16px);
+    }
+
+    .osdTitle {
+        margin: 0 0 4px;
+        font-size: clamp(1.4rem, 2.4vw, 2.2rem);
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        text-shadow: 0 2px 18px rgba(0, 0, 0, 0.6);
+    }
+
+    .osdSecondaryMediaInfo,
+    .osdTimeText,
+    .osdPositionText,
+    .osdDurationText {
+        color: var(--cinema-ink-2);
+        font-variant-numeric: tabular-nums;
+    }
+
+    // Seek bar: thicker, accent-coloured, with a glow on the thumb
+    .sliderContainer .mdl-slider-background-flex {
+        height: 5px;
+        border-radius: 999px;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.18);
+    }
+
+    .sliderContainer .mdl-slider-background-lower {
+        background: linear-gradient(90deg, var(--cinema-accent), var(--cinema-accent-2));
+        box-shadow: 0 0 12px var(--cinema-glow-soft);
+    }
+
+    .sliderContainer .mdl-slider-background-upper {
+        background: rgba(255, 255, 255, 0.28);
+    }
+
+    .sliderContainer:hover .mdl-slider-background-flex {
+        height: 7px;
+    }
+
+    .buttons {
+        gap: 6px;
+        padding-top: 8px;
+    }
+
+    .buttons .paper-icon-button-light {
+        border-radius: 50%;
+        transition: background-color 0.2s ease, transform 0.2s ease;
+
+        &:hover,
+        &:focus-visible {
+            background: rgba(255, 255, 255, 0.14);
+            transform: scale(1.08);
+        }
+    }
+
+    // Play/pause is the button that matters most: make it the big glowing one
+    .btnPause {
+        margin: 0 8px;
+        padding: 0.35em;
+        color: #0b0c14;
+        background: var(--cinema-ink);
+        box-shadow: 0 8px 30px var(--cinema-glow-soft);
+
+        &:hover,
+        &:focus-visible {
+            background: #fff;
+        }
+    }
+}
+
+// "Up next" countdown card at the end of an episode
+.cinema-app .upNextDialog {
+    border: 1px solid var(--cinema-glass-edge);
+    border-radius: 20px;
+    background: var(--cinema-glass-solid);
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@supports (backdrop-filter: blur(1px)) {
+    .cinema-app .upNextDialog {
+        background: rgba(18, 20, 30, 0.6);
+        backdrop-filter: blur(var(--cinema-blur)) saturate(160%);
+    }
+}
+
+.cinema-app .upNextDialog-hidden {
+    transform: translateY(20px) scale(0.98);
+}
+
+.cinema-app .upNextDialog-nextVideoText {
+    color: var(--cinema-ink-3);
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.cinema-app .upNextDialog-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+.cinema-app .upNextDialog-button {
+    border-radius: 999px;
+}
+
+.cinema-app .upNextDialog .btnStartNow {
+    color: #0b0c14;
+    background: var(--cinema-ink);
+}
+
+.cinema-app .upNextDialog-countdownText {
+    color: var(--cinema-accent);
+    font-variant-numeric: tabular-nums;
+}
+
+// The player's own header (back button and title). An older player style makes it part of the
+// page flow, which pushed it below the top edge; pin it to the top with a deeper fade like the bottom bar.
+.cinema-app--video .skinHeader.osdHeader {
+    position: fixed !important;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 1000;
+    padding: 8px calc(var(--cinema-gutter) - 16px) 70px;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.5) 45%, rgba(0, 0, 0, 0) 100%);
+    backdrop-filter: none;
+
+    .videoOsd-appBar {
+        font-size: 1.1rem;
+        font-weight: 600;
+        text-shadow: 0 2px 14px rgba(0, 0, 0, 0.6);
+    }
+}

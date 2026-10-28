@@ -1,0 +1,278 @@
+// Cinema look for the admin dashboard. Everything is scoped to body.cinema-dashboard, which is only
+// set while the Cinema layout is in use. Colours come from CSS variables set on the body.
+
+body.cinema-dashboard {
+    --cinema-ink: #f4f5fa;
+    --cinema-ink-2: rgba(244, 245, 250, 0.7);
+    --cinema-ink-3: rgba(244, 245, 250, 0.48);
+    --cinema-glass: rgba(26, 28, 40, 0.58);
+    --cinema-glass-edge: rgba(255, 255, 255, 0.09);
+    --cinema-field: rgba(255, 255, 255, 0.045);
+
+    color: var(--cinema-ink);
+    font-family: 'Noto Sans', sans-serif;
+    background: var(--cinema-bg, #07080d);
+    accent-color: var(--cinema-accent);
+    -webkit-font-smoothing: antialiased;
+
+    ::selection {
+        color: #0b0c14;
+        background: var(--cinema-accent);
+    }
+
+    // The classic theme's own backdrop and page backgrounds give way to Cinema's
+    .backgroundContainer,
+    .backdropContainer {
+        display: none;
+    }
+
+    .mainAnimatedPage,
+    .page,
+    .skinBody,
+    .content-primary {
+        background: transparent !important;
+    }
+
+    // Section headings
+    .sectionTitle,
+    h1,
+    h2 {
+        font-weight: 700;
+        letter-spacing: -0.01em;
+    }
+
+    .sectionTitleContainer {
+        margin-bottom: 0.6em;
+    }
+
+    .fieldDescription,
+    .secondary {
+        color: var(--cinema-ink-3);
+    }
+
+    // Panels and lists of the classic pages become glass cards
+    .paperList,
+    .verticalSection-extrabottompadding > .paperList,
+    .detailSection,
+    .readOnlyContent {
+        overflow: hidden;
+        border: 1px solid var(--cinema-glass-edge);
+        border-radius: 16px;
+        background: var(--cinema-glass);
+    }
+
+    .listItem {
+        border-radius: 10px;
+        transition: background-color 0.15s ease;
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+    }
+
+    .cardBox,
+    .visualCardBox {
+        overflow: hidden;
+        border: 1px solid var(--cinema-glass-edge);
+        border-radius: 16px;
+        background: var(--cinema-glass);
+    }
+
+    // Fields: soft, rounded, with the accent on focus
+    .emby-input,
+    .emby-textarea,
+    .emby-select,
+    .emby-select-withcolor {
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 12px;
+        color: var(--cinema-ink);
+        background: var(--cinema-field);
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+        &:focus {
+            border-color: var(--cinema-accent);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.06);
+        }
+    }
+
+    .emby-select option {
+        color: var(--cinema-ink);
+        background: #15171f;
+    }
+
+    .inputLabel,
+    .selectLabel,
+    .textareaLabel {
+        color: var(--cinema-ink-2);
+    }
+
+    // Buttons: pills; the main action in the accent colour
+    .emby-button.raised,
+    .emby-button.button-flat {
+        border-radius: 999px;
+        text-transform: none;
+    }
+
+    .emby-button.raised {
+        border: 1px solid var(--cinema-glass-edge);
+        color: var(--cinema-ink);
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    .emby-button.raised.button-submit,
+    .emby-button.raised.button-alt {
+        border-color: transparent;
+        color: #0b0c14;
+        background: var(--cinema-accent);
+        box-shadow: 0 8px 26px rgba(0, 0, 0, 0.35);
+    }
+
+    .emby-button.raised.button-delete {
+        border-color: transparent;
+        color: #fff;
+        background: #e5484d;
+    }
+
+    // Checkboxes and toggles in the accent colour
+    .checkboxOutline {
+        border-radius: 6px;
+    }
+
+    .emby-checkbox:checked + .checkboxOutline,
+    .emby-checkbox:checked + span + .checkboxOutline {
+        border-color: var(--cinema-accent);
+        background-color: var(--cinema-accent);
+    }
+
+    .mdl-switch__input:checked + .mdl-switch__trackContainer .mdl-switch__track,
+    .mdl-switch__input:checked + .mdl-switch__label + .mdl-switch__trackContainer .mdl-switch__track {
+        background: var(--cinema-accent);
+    }
+
+    // Collapsible sections
+    .emby-collapse,
+    details {
+        border-radius: 14px;
+    }
+
+    // Links
+    a.button-link,
+    .button-link {
+        color: var(--cinema-accent);
+    }
+
+    // Placeholder cards (devices, users, items without artwork) use the theme's colours, not Jellyfin's
+    .defaultCardBackground1 {
+        background: linear-gradient(135deg, var(--cinema-accent), var(--cinema-accent-2));
+    }
+
+    .defaultCardBackground2 {
+        background: linear-gradient(135deg, var(--cinema-accent-2), rgba(var(--cinema-bg-rgb), 1) 140%);
+    }
+
+    .defaultCardBackground3 {
+        background: linear-gradient(160deg, var(--cinema-accent), rgba(var(--cinema-bg-rgb), 1) 130%);
+    }
+
+    .defaultCardBackground4 {
+        background: linear-gradient(200deg, var(--cinema-accent-2), var(--cinema-accent) 120%);
+    }
+
+    .defaultCardBackground5 {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.04));
+    }
+
+    .defaultCardBackground1,
+    .defaultCardBackground2,
+    .defaultCardBackground3,
+    .defaultCardBackground4 {
+        color: #0b0c14;
+    }
+
+    // Classic dialogs (add library, edit user…) become dark glass cards
+    .dialogBackdropOpened {
+        background: rgba(var(--cinema-bg-rgb), 0.7);
+        backdrop-filter: blur(8px);
+    }
+
+    .dialog {
+        border: 1px solid var(--cinema-glass-edge);
+        color: var(--cinema-ink);
+        background: rgba(18, 20, 30, 0.94);
+        box-shadow: 0 40px 120px rgba(0, 0, 0, 0.6);
+    }
+
+    // Only floating dialogs get rounded corners; full-screen ones fill the screen edge to edge
+    .dialog:not(.dialog-fullscreen, .dialog-fixedSize, .dialog-fullscreen-lowres) {
+        overflow: hidden;
+        border-radius: 22px;
+    }
+
+    // Fixed-size dialogs only float on large screens (Jellyfin fills the screen below 80em × 45em)
+    @media all and (min-width: 80em) and (min-height: 45em) {
+        .dialog-fixedSize {
+            overflow: hidden;
+            border-radius: 22px;
+        }
+    }
+
+    .formDialogHeader,
+    .formDialogFooter {
+        border-color: var(--cinema-glass-edge);
+        background: rgba(var(--cinema-bg-rgb), 0.55);
+    }
+
+    .formDialogFooter .emby-button.raised {
+        min-width: 160px;
+    }
+
+    // Context menus (the ⋮ on cards)
+    .actionSheet {
+        border-radius: 16px;
+        background: rgba(20, 22, 32, 0.96);
+    }
+
+    .actionSheetMenuItem:hover {
+        background: rgba(255, 255, 255, 0.06);
+    }
+
+    // The menu sliding over the page on small screens is nearly solid, so the page doesn't show through
+    .MuiDrawer-modal .MuiDrawer-paper {
+        background: rgba(var(--cinema-bg-rgb), 0.95);
+    }
+}
+
+// The drifting aurora behind the dashboard, as in the main app
+.cinema-dash-aurora {
+    position: fixed;
+    inset: -25%;
+    z-index: -1;
+    background:
+        radial-gradient(38% 32% at 28% 30%, var(--cinema-accent), transparent 70%),
+        radial-gradient(34% 30% at 74% 68%, var(--cinema-accent-2), transparent 70%);
+    opacity: 0.08;
+    animation: cinema-dash-aurora 42s ease-in-out infinite alternate;
+    pointer-events: none;
+    will-change: transform;
+}
+
+@keyframes cinema-dash-aurora {
+    50% {
+        transform: translate(6%, -4%) rotate(8deg) scale(1.1);
+    }
+
+    100% {
+        transform: translate(-5%, 5%) rotate(-6deg) scale(1.05);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cinema-dash-aurora {
+        animation: none;
+    }
+}
+
+// Reduce transparency: solid panels
+body.cinema-dashboard--solid {
+    --cinema-glass: rgb(22, 24, 34);
+}

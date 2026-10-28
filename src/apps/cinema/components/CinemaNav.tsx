@@ -2,7 +2,7 @@ import HomeOutlined from '@mui/icons-material/HomeOutlined';
 import Search from '@mui/icons-material/Search';
 import SettingsOutlined from '@mui/icons-material/SettingsOutlined';
 import classNames from 'classnames';
-import React, { type FC, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import React, { type FC, Suspense, lazy, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
 
 import LibraryIcon from 'apps/modern/components/LibraryIcon';
@@ -10,8 +10,14 @@ import { appRouter } from 'components/router/appRouter';
 import { useApi } from 'hooks/useApi';
 import { useUserViews } from 'hooks/api/useUserViews';
 import globalize from 'lib/globalize';
+import type { ItemDto } from 'types/base/models/item-dto';
 
-import SettingsPanel from './SettingsPanel';
+import { usePrefetch } from '../hooks/usePrefetch';
+
+import { SurpriseButton } from './SurpriseMe';
+
+// Loaded the first time settings are opened, or in the background once idle
+const SettingsPanel = lazy(() => import(/* webpackChunkName: "cinema-settings-panel" */ './SettingsPanel'));
 
 /** Libraries shown before the rest are cut off in the top bar. */
 const MAX_TOP_BAR_LIBRARIES = 5;
@@ -22,6 +28,8 @@ interface NavLink {
     to: string;
     icon: React.ReactNode;
     isActive: boolean;
+    /** The library behind the link, so its first page can load as the pointer arrives. */
+    view?: ItemDto;
 }
 
 const useNavLinks = () => {
@@ -37,7 +45,8 @@ const useNavLinks = () => {
             label: view.Name ?? '',
             to: appRouter.getRouteUrl(view, { context: view.CollectionType }).substring(1),
             icon: <LibraryIcon item={view} />,
-            isActive: topParentId !== null && view.Id === topParentId
+            isActive: topParentId !== null && view.Id === topParentId,
+            view
         }));
 
         return [
@@ -136,16 +145,31 @@ const useSlidingPill = (deps: unknown[]) => {
 
 /** Pixels scrolled before the top bar switches to its compact, more solid look. */
 const SCROLLED_THRESHOLD = 40;
+/** Past this point, scrolling down tucks the bar away and scrolling up brings it back. */
+const HIDE_THRESHOLD = 320;
+/** Small scroll jitters don't flip the bar. */
+const DIRECTION_SLACK = 8;
 
-const useIsScrolled = () => {
-    const [ isScrolled, setIsScrolled ] = useState(false);
+const useScrollState = () => {
+    const [ state, setState ] = useState({ isScrolled: false, isHidden: false });
     useEffect(() => {
-        const onScroll = () => setIsScrolled(window.scrollY > SCROLLED_THRESHOLD);
+        let lastY = window.scrollY;
+        const onScroll = () => {
+            const y = window.scrollY;
+            const delta = y - lastY;
+            if (Math.abs(delta) < DIRECTION_SLACK && y > SCROLLED_THRESHOLD) return;
+            lastY = y;
+            const isScrolled = y > SCROLLED_THRESHOLD;
+            const isHidden = y > HIDE_THRESHOLD && delta > 0;
+            setState(previous => (
+                previous.isScrolled === isScrolled && previous.isHidden === isHidden ? previous : { isScrolled, isHidden }
+            ));
+        };
         onScroll();
         window.addEventListener('scroll', onScroll, { passive: true });
         return () => window.removeEventListener('scroll', onScroll);
     }, []);
-    return isScrolled;
+    return state;
 };
 
 const useSettingsPanel = () => {
@@ -161,14 +185,22 @@ const useSettingsPanel = () => {
 
 /** Floating glass bar across the top, used on desktop. */
 export const CinemaTopNav: FC = () => {
+    const { prefetchLibrary } = usePrefetch();
     const links = useNavLinks();
     const location = useLocation();
     const { containerRef, handlers, pillStyle } = useSlidingPill([ location.pathname, location.search, links ]);
     const { isSettingsOpen, toggleSettings, closeSettings } = useSettingsPanel();
-    const isScrolled = useIsScrolled();
+    const { isScrolled, isHidden } = useScrollState();
 
     return (
-        <nav className={classNames('cinema-topnav cinema-glass', { 'is-scrolled': isScrolled })} aria-label={globalize.translate('HeaderNavigation')}>
+        <nav
+            className={classNames('cinema-topnav cinema-glass', {
+                'is-scrolled': isScrolled,
+                // Stays put while the settings panel is open; focus inside it brings it back via CSS
+                'is-hidden': isHidden && !isSettingsOpen
+            })}
+            aria-label={globalize.translate('HeaderNavigation')}
+        >
             <Link className='cinema-brand' to='/home' tabIndex={-1}>
                 <span className='cinema-brand__mark' aria-hidden='true' />
                 Jellyfin
@@ -181,16 +213,22 @@ export const CinemaTopNav: FC = () => {
                         to={link.to}
                         className={classNames('cinema-navlink cinema-focusable', { 'is-active': link.isActive })}
                         aria-current={link.isActive ? 'page' : undefined}
+                        onMouseEnter={link.view ? () => prefetchLibrary(link.view!) : undefined}
+                        onFocus={link.view ? () => prefetchLibrary(link.view!) : undefined}
                     >
-                        {link.label}
+                        {/* Icons only show in the phone tab bar */}
+                        <span className='cinema-navlink__icon' aria-hidden='true'>{link.icon}</span>
+                        <span className='cinema-navlink__text'>{link.label}</span>
                     </Link>
                 ))}
             </div>
             <span className='cinema-topnav__divider' aria-hidden='true' />
+            <SurpriseButton className='cinema-iconbtn cinema-focusable' />
             <Link
                 className={classNames('cinema-iconbtn cinema-focusable', { 'is-active': location.pathname === '/search' })}
                 to='/search'
                 aria-label={globalize.translate('Search')}
+                title={`${globalize.translate('Search')} (Ctrl+K)`}
             >
                 <Search fontSize='small' />
             </Link>
@@ -205,7 +243,7 @@ export const CinemaTopNav: FC = () => {
                 <SettingsOutlined fontSize='small' />
             </button>
             <UserAvatar />
-            {isSettingsOpen && <SettingsPanel placement='top' onClose={closeSettings} />}
+            {isSettingsOpen && <Suspense fallback={null}><SettingsPanel placement='top' onClose={closeSettings} /></Suspense>}
         </nav>
     );
 };
@@ -242,6 +280,7 @@ export const CinemaRail: FC = () => {
                     <span className='cinema-navlink__label'>{link.label}</span>
                 </Link>
             ))}
+            <SurpriseButton className='cinema-navlink cinema-focusable' showLabel />
             <button
                 type='button'
                 className={classNames('cinema-navlink cinema-focusable', { 'is-active': isSettingsOpen })}
@@ -253,7 +292,7 @@ export const CinemaRail: FC = () => {
                 <SettingsOutlined />
                 <span className='cinema-navlink__label'>{globalize.translate('Settings')}</span>
             </button>
-            {isSettingsOpen && <SettingsPanel placement='side' onClose={closeSettings} />}
+            {isSettingsOpen && <Suspense fallback={null}><SettingsPanel placement='side' onClose={closeSettings} /></Suspense>}
         </nav>
     );
 };

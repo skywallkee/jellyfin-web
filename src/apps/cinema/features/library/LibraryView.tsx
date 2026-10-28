@@ -9,13 +9,14 @@ import { useApi } from 'hooks/useApi';
 import { useItem } from 'hooks/useItem';
 import globalize from 'lib/globalize';
 
+import HeroBanner from '../../components/HeroBanner';
 import MediaCard from '../../components/MediaCard';
 import ScrollTrack from '../../components/ScrollTrack';
 import { getBackdropUrl, isMostlyWide } from '../../utils/images';
 
 import { useHideLegacyView } from '../../hooks/useHideLegacyView';
 
-import { type LibraryFilter, PAGE_SIZE, useLibraryGenres, useLibraryItems } from './api';
+import { DEFAULT_LIBRARY_SORT, type LibraryFilter, PAGE_SIZE, useLibraryGenres, useLibraryItems, useLibrarySpotlight } from './api';
 
 interface SortOption {
     key: string;
@@ -25,7 +26,7 @@ interface SortOption {
 }
 
 const SORT_OPTIONS: SortOption[] = [
-    { key: 'added', labelKey: 'DateAdded', sortBy: [ ItemSortBy.DateCreated, ItemSortBy.SortName ], sortOrder: SortOrder.Descending },
+    { key: 'added', labelKey: 'DateAdded', ...DEFAULT_LIBRARY_SORT },
     { key: 'name', labelKey: 'Name', sortBy: [ ItemSortBy.SortName ], sortOrder: SortOrder.Ascending },
     { key: 'released', labelKey: 'ReleaseDate', sortBy: [ ItemSortBy.PremiereDate, ItemSortBy.ProductionYear, ItemSortBy.SortName ], sortOrder: SortOrder.Descending },
     { key: 'rating', labelKey: 'CommunityRating', sortBy: [ ItemSortBy.CommunityRating, ItemSortBy.SortName ], sortOrder: SortOrder.Descending }
@@ -38,6 +39,29 @@ const FILTER_OPTIONS: { key: LibraryFilter; labelKey: string }[] = [
 ];
 
 const SKELETON_COUNT = 18;
+const LETTERS = [ '#', ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ' ];
+
+interface LetterBarProps {
+    letter?: string;
+    onChange: (letter?: string) => void;
+}
+
+/** A–Z along the side when sorted by name: jump to (filter by) a starting letter. */
+const LetterBar: FC<LetterBarProps> = ({ letter, onChange }) => (
+    <nav className='cinema-letters cinema-glass' aria-label={globalize.translate('CinemaJumpToLetter')}>
+        {LETTERS.map(entry => (
+            <button
+                key={entry}
+                type='button'
+                className={classNames('cinema-letters__letter cinema-focusable', { 'is-active': entry === letter })}
+                aria-pressed={entry === letter}
+                onClick={() => onChange(entry === letter ? undefined : entry)}
+            >
+                {entry}
+            </button>
+        ))}
+    </nav>
+);
 
 interface ChipProps {
     isActive: boolean;
@@ -80,15 +104,20 @@ interface LibraryViewProps {
 }
 
 const LibraryView: FC<LibraryViewProps> = ({ parentId, itemTypes }) => {
-    useHideLegacyView();
     const { api } = useApi();
     const [ searchParams, setSearchParams ] = useSearchParams();
     const { data: library } = useItem(parentId);
+    useHideLegacyView(true, library?.Name);
     const { data: genres } = useLibraryGenres(parentId, itemTypes);
+    const { data: spotlight } = useLibrarySpotlight(parentId, itemTypes);
+    const hasSpotlight = Boolean(spotlight?.length);
 
     const sort = SORT_OPTIONS.find(option => option.key === searchParams.get('sort')) ?? SORT_OPTIONS[0];
     const filter = (FILTER_OPTIONS.find(option => option.key === searchParams.get('filter'))?.key) ?? 'all';
     const genreId = searchParams.get('genreId') ?? undefined;
+    const isByName = sort.key === 'name';
+    // The letter only applies while sorted by name, where the bar is shown
+    const letter = isByName ? searchParams.get('letter') ?? undefined : undefined;
 
     // Keep choices in the URL so Back returns to the same view
     const setParam = useCallback((key: string, value?: string) => {
@@ -106,8 +135,9 @@ const LibraryView: FC<LibraryViewProps> = ({ parentId, itemTypes }) => {
         sortBy: sort.sortBy,
         sortOrder: sort.sortOrder,
         filter,
-        genreId
-    }), [ filter, genreId, itemTypes, parentId, sort ]);
+        genreId,
+        letter
+    }), [ filter, genreId, itemTypes, letter, parentId, sort ]);
 
     const { data, isPending, hasNextPage, isFetchingNextPage, fetchNextPage } = useLibraryItems(query);
     const items = useMemo(() => data?.pages.flatMap(page => page.items) ?? [], [ data ]);
@@ -124,10 +154,12 @@ const LibraryView: FC<LibraryViewProps> = ({ parentId, itemTypes }) => {
 
     return (
         <div className='cinema-library'>
-            <div
-                className='cinema-library__backdrop'
-                style={backdropUrl ? { backgroundImage: `url("${backdropUrl}")` } : undefined}
-            />
+            {hasSpotlight && spotlight ?
+                <HeroBanner items={spotlight} isCompact /> :
+                <div
+                    className='cinema-library__backdrop'
+                    style={backdropUrl ? { backgroundImage: `url("${backdropUrl}")` } : undefined}
+                />}
 
             <header className='cinema-library__header'>
                 <h1 className='cinema-library__title'>{library?.Name ?? ' '}</h1>
@@ -179,7 +211,21 @@ const LibraryView: FC<LibraryViewProps> = ({ parentId, itemTypes }) => {
                 </ScrollTrack>
             )}
 
-            <div className={classNames('cinema-grid cinema-stagger is-visible', `cinema-grid--${shape}`)}>
+            {isByName && (
+                <LetterBar
+                    letter={letter}
+                    onChange={next => {
+                        setParam('letter', next);
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                />
+            )}
+
+            <div
+                // Re-keyed per filter so a new set of results plays its entrance instead of popping in
+                key={`${sort.key}-${filter}-${genreId ?? ''}-${letter ?? ''}`}
+                className={classNames('cinema-grid cinema-stagger is-visible', `cinema-grid--${shape}`, { 'has-letters': isByName })}
+            >
                 {isPending ?
                     Array.from({ length: SKELETON_COUNT }, (_, i) => (
                         <span key={i} className={classNames('cinema-card cinema-skeleton', `cinema-card--${shape}`)} />

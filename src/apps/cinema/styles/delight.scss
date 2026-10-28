@@ -1,0 +1,427 @@
+// Cinema: delights. Surprise me, resume buttons, card tags, voice search, shortcuts,
+// the "Your Cinema" stats page and the library spotlight.
+
+// Surprise me: a slot-machine reel of posters
+.cinema-surprise {
+    position: fixed;
+    inset: 0;
+    z-index: 1070;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+}
+
+.cinema-surprise__scrim {
+    position: absolute;
+    inset: 0;
+    padding: 0;
+    border: 0;
+    background: radial-gradient(ellipse at center, rgba(var(--cinema-bg-rgb), 0.82), rgba(0, 0, 0, 0.96));
+    cursor: default;
+    animation: cinema-fade-in 0.3s ease both;
+}
+
+.cinema-surprise__eyebrow,
+.cinema-surprise__title {
+    position: relative;
+    margin: 0;
+    text-align: center;
+}
+
+.cinema-surprise__eyebrow {
+    color: var(--cinema-ink-2);
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    animation: cinema-rise 0.5s ease both;
+}
+
+.cinema-surprise__title {
+    min-height: 1.3em;
+    font-size: clamp(1.6rem, 3.4vw, 2.6rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.cinema-surprise.is-landed .cinema-surprise__title {
+    animation: cinema-rise 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+// The window shows the middle of the reel, fading out at the edges
+.cinema-surprise__window {
+    position: relative;
+    width: 100%;
+    height: 240px;
+    overflow: hidden;
+    mask-image: linear-gradient(90deg, transparent, #000 25%, #000 75%, transparent);
+
+    // A marker at the centre where the winner lands
+    &::after {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 50%;
+        width: 2px;
+        margin-left: -1px;
+        background: linear-gradient(180deg, transparent, var(--cinema-accent), transparent);
+        box-shadow: 0 0 18px var(--cinema-glow);
+        content: '';
+    }
+}
+
+.cinema-surprise__reel {
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    display: flex;
+    transform: translateX(0);
+    will-change: transform;
+}
+
+.cinema-surprise.is-spinning .cinema-surprise__reel,
+.cinema-surprise.is-landed .cinema-surprise__reel {
+    transform: translateX(var(--cinema-reel-x));
+    transition: transform var(--cinema-spin-ms, 3.4s) cubic-bezier(0.12, 0.6, 0.08, 1);
+}
+
+.cinema-surprise__poster {
+    display: grid;
+    flex: none;
+    aspect-ratio: 2 / 3;
+    padding: 10px;
+    place-items: center;
+    border-radius: 12px;
+    color: var(--cinema-ink-2);
+    font-size: 0.8rem;
+    text-align: center;
+    background: #1a1d2b center / cover;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+    transition: transform 0.5s cubic-bezier(0.3, 1.5, 0.5, 1), box-shadow 0.5s ease, filter 0.5s ease;
+}
+
+.cinema-surprise.is-spinning .cinema-surprise__poster {
+    filter: blur(1.5px) brightness(0.85);
+}
+
+.cinema-surprise.is-landed .cinema-surprise__poster:not(.is-winner) {
+    filter: brightness(0.4) saturate(0.6);
+}
+
+.cinema-surprise.is-landed .cinema-surprise__poster.is-winner {
+    transform: scale(1.12);
+    box-shadow: 0 0 0 3px var(--cinema-ink), 0 0 60px var(--cinema-glow), 0 24px 50px rgba(0, 0, 0, 0.6);
+}
+
+// The dice give a little roll when hovered
+.cinema-dice {
+    transition: transform 0.5s cubic-bezier(0.3, 1.5, 0.5, 1);
+}
+
+@media (hover: hover) {
+    .cinema-iconbtn:hover .cinema-dice,
+    .cinema-navlink:hover .cinema-dice {
+        transform: rotate(200deg) scale(1.1);
+    }
+}
+
+// Continue Watching: a play button that resumes straight away
+.cinema-card-wrap {
+    position: relative;
+    flex: none;
+}
+
+.cinema-card__play {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 3;
+    display: grid;
+    width: 56px;
+    height: 56px;
+    margin: -38px 0 0 -28px;
+    padding: 0;
+    place-items: center;
+    border: 0;
+    border-radius: 50%;
+    color: #0b0c14;
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 30px var(--cinema-glow-soft);
+    cursor: pointer;
+    opacity: 0;
+    transform: scale(0.7);
+    transition: opacity 0.25s ease, transform 0.3s cubic-bezier(0.3, 1.5, 0.5, 1), background-color 0.2s ease;
+
+    svg {
+        font-size: 2rem;
+    }
+
+    &:hover {
+        background: #fff;
+        transform: scale(1.08);
+    }
+}
+
+@media (hover: hover) {
+    .cinema-card-wrap:hover .cinema-card__play {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    .cinema-card-wrap:hover .cinema-card__play:hover {
+        transform: scale(1.1);
+    }
+}
+
+// Tags on cards: "New", and the number of unwatched episodes
+.cinema-tag {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 2;
+    padding: 3px 8px;
+    border-radius: 6px;
+    color: #0b0c14;
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, var(--cinema-accent), var(--cinema-accent-2));
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+}
+
+.cinema-badge--count {
+    min-width: 24px;
+    padding: 0 7px;
+    color: #0b0c14;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-align: center;
+    background: var(--cinema-accent);
+}
+
+// Voice search: rings pulse out of the mic while listening
+.cinema-voice {
+    position: relative;
+    flex: none;
+
+    &.is-listening {
+        color: #0b0c14;
+        background: var(--cinema-accent);
+
+        &::before,
+        &::after {
+            position: absolute;
+            inset: 0;
+            border: 2px solid var(--cinema-accent);
+            border-radius: 50%;
+            animation: cinema-voice-ring 1.4s ease-out infinite;
+            content: '';
+        }
+
+        &::after {
+            animation-delay: 0.7s;
+        }
+    }
+}
+
+@keyframes cinema-voice-ring {
+    from {
+        opacity: 0.9;
+        transform: scale(1);
+    }
+
+    to {
+        opacity: 0;
+        transform: scale(2.2);
+    }
+}
+
+// Keyboard shortcuts
+.cinema-shortcuts {
+    position: fixed;
+    inset: 0;
+    z-index: 1065;
+    display: grid;
+    padding: 16px;
+    place-items: center;
+}
+
+.cinema-shortcuts__panel {
+    position: relative;
+    width: min(460px, 100%);
+    padding: 24px 28px;
+    border-radius: 22px;
+    animation: cinema-qs-in 0.28s cubic-bezier(0.2, 0.9, 0.25, 1) both;
+
+    h2 {
+        margin: 0 0 16px;
+        font-size: 1.2rem;
+    }
+
+    dl {
+        display: grid;
+        gap: 10px;
+        margin: 0;
+    }
+}
+
+.cinema-shortcuts__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+
+    dt {
+        display: flex;
+        gap: 4px;
+    }
+
+    dd {
+        margin: 0;
+        color: var(--cinema-ink-2);
+        text-align: right;
+    }
+}
+
+// "Your Cinema" stats
+.cinema-stats {
+    padding-bottom: 48px;
+}
+
+.cinema-stats__header {
+    padding: 28px var(--cinema-gutter) 8px;
+}
+
+.cinema-stats__title {
+    margin: 0;
+    color: transparent;
+    font-size: clamp(2.6rem, 6vw, 4.8rem);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    background: linear-gradient(120deg, var(--cinema-ink) 20%, var(--cinema-accent) 60%, var(--cinema-accent-2));
+    background-clip: text;
+    animation: cinema-rise 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.cinema-stats__lede {
+    margin: 12px 0 0;
+    color: var(--cinema-ink-2);
+    font-size: 1.15rem;
+    animation: cinema-rise 0.7s 0.15s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.cinema-stats__loading {
+    height: 220px;
+    margin: 24px var(--cinema-gutter);
+    border-radius: 20px;
+}
+
+.cinema-stats__tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    padding: 24px var(--cinema-gutter);
+}
+
+.cinema-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 22px 24px;
+    border-radius: 20px;
+    animation: cinema-card-rise 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+    animation-delay: calc(var(--cinema-i, 0) * 90ms);
+}
+
+.cinema-stat__icon {
+    color: var(--cinema-accent);
+}
+
+.cinema-stat__value {
+    font-size: clamp(2.2rem, 4vw, 3.2rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+}
+
+.cinema-stat__label {
+    color: var(--cinema-ink-3);
+    font-size: 0.9rem;
+}
+
+.cinema-stats__section {
+    padding: 8px 0 24px;
+}
+
+.cinema-genrebars {
+    display: grid;
+    gap: 12px;
+    max-width: 720px;
+    margin: 0;
+    padding: 6px var(--cinema-gutter);
+    list-style: none;
+}
+
+.cinema-genrebar {
+    display: grid;
+    grid-template-columns: 130px 1fr 40px;
+    gap: 14px;
+    align-items: center;
+}
+
+.cinema-genrebar__name {
+    overflow: hidden;
+    color: var(--cinema-ink-2);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.cinema-genrebar__track {
+    height: 10px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.cinema-genrebar__fill {
+    display: block;
+    width: calc(var(--cinema-share, 0) * 100%);
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--cinema-accent), var(--cinema-accent-2));
+    box-shadow: 0 0 14px var(--cinema-glow-soft);
+    transform-origin: left center;
+    animation: cinema-bar-grow 1.1s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+    animation-delay: calc(0.3s + var(--cinema-i, 0) * 90ms);
+}
+
+@keyframes cinema-bar-grow {
+    from {
+        transform: scaleX(0);
+    }
+}
+
+.cinema-genrebar__count {
+    color: var(--cinema-ink-3);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+// Library spotlight: a shorter hero that runs up under the nav
+.cinema-hero--compact {
+    min-height: min(56vh, 620px);
+    margin-top: calc(-1 * var(--cinema-nav-offset));
+
+    .cinema-hero__title {
+        font-size: clamp(2rem, 4vw, 3.4rem);
+    }
+
+    .cinema-hero__logo {
+        max-height: 120px;
+    }
+}

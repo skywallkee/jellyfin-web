@@ -3,6 +3,8 @@ import ChevronRight from '@mui/icons-material/ChevronRight';
 import classNames from 'classnames';
 import React, { type FC, type PropsWithChildren, useCallback, useEffect, useRef, useState } from 'react';
 
+import { useDragScroll } from '../hooks/useDragScroll';
+
 /** How much of the visible width one arrow click scrolls. */
 const PAGE_FRACTION = 0.85;
 
@@ -14,12 +16,13 @@ interface ScrollTrackProps {
 
 /**
  * A horizontally scrolling row with arrow buttons that appear on hover
- * while there's more to see in that direction.
+ * while there's more to see in that direction. It can also be dragged and flung with the mouse.
  */
 const ScrollTrack: FC<PropsWithChildren<ScrollTrackProps>> = ({ className, label, children }) => {
     const trackRef = useRef<HTMLDivElement>(null);
     const [ canScrollLeft, setCanScrollLeft ] = useState(false);
     const [ canScrollRight, setCanScrollRight ] = useState(false);
+    useDragScroll(trackRef);
 
     const update = useCallback(() => {
         const track = trackRef.current;

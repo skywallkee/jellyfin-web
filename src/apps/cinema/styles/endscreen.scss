@@ -1,0 +1,196 @@
+// Cinema: the screen after a title finishes ("Coming next" / "You could also watch")
+
+.cinema-endscreen {
+    position: fixed;
+    inset: 0;
+    z-index: 1075;
+    display: flex;
+    overflow: hidden auto;
+    background: var(--cinema-bg);
+    animation: cinema-fade-in 0.6s ease both;
+    overscroll-behavior: contain;
+}
+
+.cinema-endscreen__backdrop {
+    position: fixed;
+    inset: -20px;
+    background-color: #141a35;
+    background-position: center 20%;
+    background-size: cover;
+    animation: cinema-endscreen-settle 1.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+
+    &::after {
+        position: absolute;
+        inset: 0;
+        background:
+            linear-gradient(90deg, rgba(var(--cinema-bg-rgb), 0.96) 0%, rgba(var(--cinema-bg-rgb), 0.75) 40%, rgba(var(--cinema-bg-rgb), 0.3) 75%),
+            linear-gradient(0deg, var(--cinema-bg) 0%, rgba(var(--cinema-bg-rgb), 0.2) 45%, rgba(var(--cinema-bg-rgb), 0.4) 100%);
+        content: '';
+    }
+}
+
+// The artwork eases back into place, like the camera settling after the credits
+@keyframes cinema-endscreen-settle {
+    from {
+        opacity: 0;
+        transform: scale(1.12);
+        filter: blur(12px);
+    }
+}
+
+.cinema-endscreen__close {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 2;
+    width: 48px;
+    height: 48px;
+    color: var(--cinema-ink);
+}
+
+.cinema-endscreen__content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+    min-height: 100%;
+    padding: 72px 0 48px;
+}
+
+.cinema-endscreen__text {
+    max-width: 640px;
+    padding: 0 var(--cinema-gutter);
+    animation: cinema-rise 0.7s 0.2s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.cinema-endscreen__eyebrow {
+    margin: 0 0 6px;
+    color: var(--cinema-ink-3);
+    font-size: 0.9rem;
+}
+
+.cinema-endscreen__heading {
+    margin: 0 0 22px;
+    color: var(--cinema-accent);
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+.cinema-endscreen__logo {
+    display: block;
+    max-width: min(420px, 80%);
+    max-height: 130px;
+    margin-bottom: 14px;
+    object-fit: contain;
+    object-position: left bottom;
+}
+
+.cinema-endscreen__series {
+    margin: 0 0 6px;
+    color: var(--cinema-ink-2);
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.cinema-endscreen__title {
+    margin: 0 0 14px;
+    font-size: clamp(1.8rem, 3.6vw, 2.8rem);
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+}
+
+.cinema-endscreen__title--big {
+    font-size: clamp(2.4rem, 5vw, 4rem);
+}
+
+.cinema-endscreen__overview {
+    display: -webkit-box;
+    margin: 14px 0 0;
+    overflow: hidden;
+    color: var(--cinema-ink-2);
+    font-size: 1.05rem;
+    line-height: 1.6;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
+}
+
+// Coming next: text on the left, the episode's still on the right
+.cinema-endscreen__next {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 40px;
+    align-items: center;
+    padding-right: var(--cinema-gutter);
+}
+
+.cinema-endscreen__still {
+    position: relative;
+    display: grid;
+    aspect-ratio: 16 / 9;
+    padding: 0;
+    place-items: center;
+    border: 0;
+    border-radius: 20px;
+    background: #1a1d2b center / cover;
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.65), 0 0 0 1px var(--cinema-glass-edge), 0 0 80px var(--cinema-glow-soft);
+    cursor: pointer;
+    animation: cinema-card-in 0.8s 0.35s cubic-bezier(0.2, 0.9, 0.25, 1) both;
+    transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+
+    &:hover {
+        transform: scale(1.02);
+    }
+}
+
+.cinema-endscreen__stillplay {
+    display: grid;
+    width: 76px;
+    height: 76px;
+    place-items: center;
+    border-radius: 50%;
+    color: #0b0c14;
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+    transition: transform 0.3s cubic-bezier(0.3, 1.5, 0.5, 1);
+
+    svg {
+        font-size: 2.6rem;
+    }
+}
+
+.cinema-endscreen__still:hover .cinema-endscreen__stillplay {
+    transform: scale(1.1);
+}
+
+.cinema-endscreen__runtime {
+    position: absolute;
+    right: 14px;
+    bottom: 12px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    color: var(--cinema-ink);
+    font-size: 0.8rem;
+    background: rgba(0, 0, 0, 0.6);
+}
+
+// You could also watch: more picks in a row below
+.cinema-endscreen__more {
+    margin-top: 44px;
+    animation: cinema-rise 0.7s 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@media (max-width: 900px) {
+    .cinema-endscreen__next {
+        grid-template-columns: 1fr;
+        padding: 0 var(--cinema-gutter);
+    }
+
+    // The two-column layout brings its own side padding
+    .cinema-endscreen__next .cinema-endscreen__text {
+        padding: 0;
+    }
+}
