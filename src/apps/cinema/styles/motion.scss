@@ -5,15 +5,14 @@
     animation: cinema-page-in 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
 }
 
+// A fade only: sliding the whole page made content shift under the pointer as it arrived
 @keyframes cinema-page-in {
     from {
         opacity: 0;
-        transform: translateY(10px);
     }
 
     to {
         opacity: 1;
-        transform: none;
     }
 }
 
@@ -192,6 +191,8 @@ img.cinema-card__image {
 }
 
 :root:has(.cinema-app) {
+    // Always reserve the scrollbar's space, so short and long pages line up the same
+    scrollbar-gutter: stable;
     scrollbar-color: rgba(255, 255, 255, 0.2) var(--cinema-bg, #07080d);
     background: #07080d;
 }

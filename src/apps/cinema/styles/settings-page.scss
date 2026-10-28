@@ -137,9 +137,10 @@
 // "← All settings" link above each settings page
 .cinema-backbar {
     box-sizing: border-box;
-    max-width: 860px;
+    // Lines up with the settings cards' column
+    max-width: 804px;
     margin: 0 auto;
-    padding: 12px var(--cinema-gutter) 4px;
+    padding: 12px 0 4px;
     animation: cinema-rise 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
 }
 
@@ -173,14 +174,8 @@
     }
 }
 
-// Settings pages are positioned at the top of the content area and ignore the bar above them,
-// so push their content down to clear it. jellyfin-web sets `.libraryPage { padding-top: 7em !important }`,
-// which can only be overridden with !important.
-.cinema-app .cinema-main--with-backbar .page.libraryPage.mainAnimatedPage {
-    padding-top: 168px !important;
-}
-
-// Pages laid out normally (e.g. Display) already sit below the bar, so they only need a small gap
-.cinema-app .cinema-main--with-backbar .page.libraryPage:not(.mainAnimatedPage) {
-    padding-top: 20px !important;
+@media (max-width: 900px) {
+    .cinema-backbar {
+        padding: 12px var(--cinema-gutter) 4px;
+    }
 }

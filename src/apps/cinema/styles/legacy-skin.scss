@@ -1,5 +1,20 @@
 // Cinema: restyles the existing settings pages (legacy and MUI forms) to match the glass look
 
+// Legacy pages are pinned over the content area by jellyfin-web (absolute, inset 0, contain: size).
+// Inside Cinema that makes them cover the "All settings" link, stops the app (and its background)
+// from growing with the page, and misaligns the content. Put them back into normal flow instead.
+// `contain` and `padding-top` are set with !important upstream, so they need it here too.
+.cinema-app .mainAnimatedPage {
+    position: relative;
+    inset: auto;
+    contain: style !important;
+}
+
+// The Cinema frame already clears the floating nav, so pages only need a small gap at the top
+.cinema-app .cinema-main .page.libraryPage {
+    padding-top: 24px !important;
+}
+
 // Existing settings pages restyled to match (legacy forms and MUI forms)
 .cinema-app {
     .settingsContainer,
@@ -8,15 +23,26 @@
         margin: 0 auto;
     }
 
+    // Some pages (e.g. Quick Connect) wrap their sections in a width-limited form that sits at the left
+    .userPreferencesPage form {
+        margin-right: auto;
+        margin-left: auto;
+    }
+
     .userPreferencesPage .verticalSection,
     .userProfileSettingsPage .verticalSection {
         box-sizing: border-box;
+        // Same centred column on every settings page (some pages have no width-limiting wrapper)
+        max-width: 804px;
+        margin-right: auto;
         margin-bottom: 18px;
+        margin-left: auto;
         padding: 20px 24px;
         border: 1px solid var(--cinema-glass-edge);
         border-radius: 20px;
         background: var(--cinema-glass);
-        animation: cinema-rise 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+        // A fade without movement, so the form doesn't shift under the pointer as it appears
+        animation: cinema-fade-in 0.35s ease backwards;
     }
 
     .sectionTitle {
@@ -122,14 +148,14 @@
         .readOnlyContent,
         .detailSection {
             box-sizing: border-box;
-            // Same width as the password form's container, so the cards line up
-            max-width: 800px;
+            // Same column width as the other settings pages
+            max-width: 804px;
             margin: 0 auto 18px;
             padding: 20px 24px;
             border: 1px solid var(--cinema-glass-edge);
             border-radius: 20px;
             background: var(--cinema-glass);
-            animation: cinema-rise 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+            animation: cinema-fade-in 0.35s ease backwards;
         }
 
         .readOnlyContent {
@@ -166,7 +192,7 @@
         border: 1px solid var(--cinema-glass-edge);
         border-radius: 20px;
         background: var(--cinema-glass);
-        animation: cinema-rise 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+        animation: cinema-fade-in 0.35s ease backwards;
     }
 
     // Forms built with MUI (e.g. Display preferences)
