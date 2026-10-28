@@ -10,7 +10,9 @@ import { useApi } from 'hooks/useApi';
 import { LibraryProvider } from 'apps/modern/features/libraries/hooks/useLibrary';
 
 import { CinemaRail, CinemaTopNav } from './components/CinemaNav';
+import { HoverPreviewProvider } from './components/HoverPreview';
 import { useSpatialNavigation } from './hooks/useSpatialNavigation';
+import { useCinemaSettings } from './utils/settings';
 
 import './cinema.scss';
 
@@ -23,6 +25,7 @@ export const Component = () => {
     const { user } = useApi();
     const location = useLocation();
     const isTv = layoutManager.cinemaTv;
+    const [ settings ] = useCinemaSettings();
 
     useSpatialNavigation(isTv);
 
@@ -31,18 +34,26 @@ export const Component = () => {
 
     return (
         <LibraryProvider>
-            <div className={classNames('cinema-app', { 'cinema-app--tv': isTv })}>
-                {showNav && (isTv ? <CinemaRail /> : <CinemaTopNav />)}
+            <div
+                className={classNames('cinema-app', {
+                    'cinema-app--tv': isTv,
+                    'cinema-app--solid': settings.reduceTransparency
+                })}
+                data-cinema-theme={settings.theme}
+            >
+                <HoverPreviewProvider>
+                    {showNav && (isTv ? <CinemaRail /> : <CinemaTopNav />)}
 
-                <main
-                    className={classNames('cinema-main', {
-                        'cinema-main--offset': showNav && !isFullBleed
-                    })}
-                >
-                    <AppBody>
-                        <Outlet />
-                    </AppBody>
-                </main>
+                    <main
+                        className={classNames('cinema-main', {
+                            'cinema-main--offset': showNav && !isFullBleed
+                        })}
+                    >
+                        <AppBody>
+                            <Outlet />
+                        </AppBody>
+                    </main>
+                </HoverPreviewProvider>
 
                 <ThemeCss />
                 <CustomCss />

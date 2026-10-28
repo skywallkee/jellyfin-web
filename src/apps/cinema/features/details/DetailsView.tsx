@@ -88,7 +88,8 @@ const DetailsView: FC<{ item: ItemDto }> = ({ item }) => {
 
     const backdropUrl = api ? getBackdropUrl(api, item) : undefined;
     const logoUrl = api ? getLogoUrl(api, item) : undefined;
-    const title = getDisplayTitle(item);
+    // Seasons show the series name here; the season name is the subtitle below
+    const title = item.Type === 'Season' ? item.SeriesName ?? getDisplayTitle(item) : getDisplayTitle(item);
     const subtitle = getSubtitle(item);
     const tagline = item.Taglines?.[0];
     const facts = getFacts(item);

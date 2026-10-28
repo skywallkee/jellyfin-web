@@ -10,6 +10,8 @@ import { getLandscapeUrl, getPosterUrl } from '../utils/images';
 import { getDisplayTitle, getEpisodeLabel } from '../utils/items';
 import { getItemPath } from '../utils/actions';
 
+import { useHoverPreview } from './HoverPreview';
+
 export type CardShape = 'landscape' | 'poster' | 'square';
 
 interface MediaCardProps {
@@ -28,15 +30,19 @@ const MediaCard: FC<MediaCardProps> = ({ item, shape, subtitle, showProgress }) 
     const playedPercentage = item.UserData?.PlayedPercentage ?? 0;
     const isPlayed = Boolean(item.UserData?.Played);
     const fullTitle = episodeLabel ? `${title} · ${episodeLabel}` : title;
+    const preview = useHoverPreview();
 
     return (
         <Link
             to={getItemPath(item)}
             className={classNames('cinema-card cinema-focusable', `cinema-card--${shape}`)}
-            style={imageUrl ? { backgroundImage: `url("${imageUrl}")` } : undefined}
             aria-label={subtitle ? `${fullTitle}, ${subtitle}` : fullTitle}
+            onMouseEnter={preview ? e => preview.onCardEnter(item, e.currentTarget) : undefined}
+            onMouseLeave={preview?.onCardLeave}
         >
-            {!imageUrl && <span className='cinema-card__fallback'>{title}</span>}
+            {imageUrl ?
+                <span className='cinema-card__image' style={{ backgroundImage: `url("${imageUrl}")` }} /> :
+                <span className='cinema-card__fallback'>{title}</span>}
 
             {isPlayed && (
                 <span className='cinema-badge cinema-glass' aria-hidden='true'>

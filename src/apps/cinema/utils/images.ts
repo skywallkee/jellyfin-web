@@ -59,10 +59,11 @@ const getLandscapeRef = (item: ItemDto) => (
     ?? getWidePrimaryRef(item)
 );
 
-/** A 2:3 poster. Episodes use their series poster. */
+/** A 2:3 poster. Episodes use their series poster; seasons fall back to it when they have none. */
 const getPosterRef = (item: ItemDto) => (
     (item.Type === 'Episode' ? toRef(item.SeriesId, item.SeriesPrimaryImageTag, ImageType.Primary) : undefined)
     ?? toRef(item.Id, item.ImageTags?.Primary, ImageType.Primary)
+    ?? toRef(item.SeriesId, item.SeriesPrimaryImageTag, ImageType.Primary)
 );
 
 /** Full-screen artwork: a backdrop, or a wide primary image when there's no backdrop. */

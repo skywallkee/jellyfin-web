@@ -10,6 +10,7 @@ import { useItem } from 'hooks/useItem';
 import globalize from 'lib/globalize';
 
 import MediaCard from '../../components/MediaCard';
+import ScrollTrack from '../../components/ScrollTrack';
 import { getBackdropUrl, isMostlyWide } from '../../utils/images';
 
 import { type LibraryFilter, useLibraryGenres, useLibraryItems } from './api';
@@ -159,7 +160,7 @@ const LibraryView: FC<LibraryViewProps> = ({ parentId, itemTypes }) => {
             </div>
 
             {genres && genres.length > 0 && (
-                <div className='cinema-chipgroup cinema-library__genres' role='group' aria-label={globalize.translate('Genres')}>
+                <ScrollTrack className='cinema-chipgroup cinema-library__genres' label={globalize.translate('Genres')}>
                     <Chip isActive={!genreId} onClick={() => setParam('genreId')}>
                         {globalize.translate('All')}
                     </Chip>
@@ -172,7 +173,7 @@ const LibraryView: FC<LibraryViewProps> = ({ parentId, itemTypes }) => {
                             {genre.Name}
                         </Chip>
                     ))}
-                </div>
+                </ScrollTrack>
             )}
 
             <div className={classNames('cinema-grid', `cinema-grid--${shape}`)}>

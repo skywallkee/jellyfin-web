@@ -29,10 +29,12 @@ export const getEpisodeLabel = (item: ItemDto) => {
     return `S${season} E${episode}`;
 };
 
-/** The main title to show for an item. Episodes show their series name. */
-export const getDisplayTitle = (item: ItemDto) => (
-    item.Type === 'Episode' && item.SeriesName ? item.SeriesName : item.Name ?? ''
-);
+/** The main title to show for an item. Episodes show their series name, seasons "Series · Season 2". */
+export const getDisplayTitle = (item: ItemDto) => {
+    if (item.Type === 'Episode' && item.SeriesName) return item.SeriesName;
+    if (item.Type === 'Season' && item.SeriesName) return `${item.SeriesName} · ${item.Name ?? ''}`;
+    return item.Name ?? '';
+};
 
 const getStreams = (item: ItemDto) => item.MediaStreams ?? item.MediaSources?.[0]?.MediaStreams ?? [];
 

@@ -71,7 +71,8 @@ const HeroBanner: FC<HeroBannerProps> = ({ items }) => {
                 style={backdropUrl ? { backgroundImage: `url("${backdropUrl}")` } : undefined}
             />
 
-            <div className='cinema-hero__body'>
+            {/* Keyed by item so the text eases in again each time the featured title changes */}
+            <div key={item.Id} className='cinema-hero__body'>
                 {logoUrl ?
                     <img className='cinema-hero__logo' src={logoUrl} alt={title} /> :
                     <h1 className='cinema-hero__title'>{title}</h1>}

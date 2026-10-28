@@ -4,6 +4,7 @@ import React, { type FC } from 'react';
 import type { ItemDto } from 'types/base/models/item-dto';
 
 import MediaCard, { type CardShape } from './MediaCard';
+import ScrollTrack from './ScrollTrack';
 
 const SKELETON_COUNT = 6;
 
@@ -25,7 +26,7 @@ const MediaRow: FC<MediaRowProps> = ({ title, items, isPending, shape, showProgr
                 {title}
                 {items && items.length > 0 && <span className='cinema-row__count'>{items.length}</span>}
             </h2>
-            <div className='cinema-row__track'>
+            <ScrollTrack className='cinema-row__track'>
                 {isPending ?
                     Array.from({ length: SKELETON_COUNT }, (_, i) => (
                         <span
@@ -42,7 +43,7 @@ const MediaRow: FC<MediaRowProps> = ({ title, items, isPending, shape, showProgr
                             subtitle={getSubtitle?.(item)}
                         />
                     ))}
-            </div>
+            </ScrollTrack>
         </section>
     );
 };

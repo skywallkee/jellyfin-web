@@ -64,6 +64,9 @@ const isInFixedContainer = (el: HTMLElement) => {
     return false;
 };
 
+/** Panels that keep arrow-key focus inside them while open. */
+const TRAP_SELECTOR = '.cinema-settings';
+
 /** The navigation bar and TV rail form their own zone, separate from the page content. */
 const NAV_SELECTOR = '.cinema-rail, .cinema-topnav';
 const isInNav = (el: HTMLElement) => Boolean(el.closest(NAV_SELECTOR));
@@ -149,8 +152,9 @@ export const useSpatialNavigation = (enabled: boolean) => {
             // Let open dialogs and menus handle their own keys
             if (active?.closest('[role="dialog"], [role="menu"], [role="listbox"], .dialogContainer')) return;
 
-            // Only move between elements of the app itself, not overlays such as dev tools
-            const scope = document.querySelector('.cinema-app') ?? document;
+            // Only move between elements of the app itself, not overlays such as dev tools.
+            // An open panel (like settings) keeps focus inside it until it's closed.
+            const scope = active?.closest(TRAP_SELECTOR) ?? document.querySelector('.cinema-app') ?? document;
             const candidates = Array.from(scope.querySelectorAll<HTMLElement>(FOCUSABLE_QUERY)).filter(isVisible);
             if (!candidates.length) return;
 
