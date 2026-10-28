@@ -36,6 +36,16 @@ const isTextEntry = (el: Element | null) => {
     return el.tagName === 'INPUT' && TEXT_INPUT_TYPES.has((el as HTMLInputElement).type);
 };
 
+/** Whether moving in this direction would leave a text field instead of moving its cursor. */
+const isCaretAtEdge = (el: Element | null, direction: Direction) => {
+    if (direction === 'up' || direction === 'down') return true;
+    const input = el as HTMLInputElement | HTMLTextAreaElement;
+    // Some input types don't expose the caret; keep the keys in the field for those
+    if (input.selectionStart == null || input.selectionEnd == null) return false;
+    if (input.selectionStart !== input.selectionEnd) return false;
+    return direction === 'left' ? input.selectionStart === 0 : input.selectionEnd === input.value.length;
+};
+
 const isVisible = (el: HTMLElement) => {
     // Elements taken out of the tab order are deliberately skipped
     if (el.getAttribute('tabindex') === '-1') return false;
@@ -134,8 +144,8 @@ export const useSpatialNavigation = (enabled: boolean) => {
 
             const direction = KEY_DIRECTIONS[e.key];
             if (!direction) return;
-            // Let text fields keep left/right for moving the cursor
-            if (isTextEntry(active) && (direction === 'left' || direction === 'right')) return;
+            // Let text fields keep left/right for moving the cursor, unless it's already at that end
+            if (isTextEntry(active) && !isCaretAtEdge(active, direction)) return;
             // Let open dialogs and menus handle their own keys
             if (active?.closest('[role="dialog"], [role="menu"], [role="listbox"], .dialogContainer')) return;
 

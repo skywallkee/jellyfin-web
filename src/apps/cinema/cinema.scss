@@ -163,9 +163,13 @@
     place-items: center;
     width: 38px;
     height: 38px;
+    padding: 0;
+    border: 0;
     border-radius: 999px;
     color: var(--cinema-ink-2);
+    background: none;
     text-decoration: none;
+    cursor: pointer;
 
     &:hover {
         color: var(--cinema-ink);
@@ -940,4 +944,71 @@
     display: flex;
     justify-content: center;
     padding-top: 24px;
+}
+
+// Search
+.cinema-search {
+    min-height: 100vh;
+    padding-top: 28px;
+}
+
+.cinema-search__field {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    max-width: 760px;
+    margin: 0 auto 28px;
+    padding: 6px 10px 6px 20px;
+    border-radius: 999px;
+
+    &:focus-within {
+        box-shadow: 0 0 0 2px var(--cinema-focus), 0 0 38px rgba(138, 180, 255, 0.35);
+    }
+}
+
+.cinema-search__icon {
+    flex: none;
+    color: var(--cinema-ink-2);
+}
+
+.cinema-search__input {
+    flex: 1;
+    min-width: 0;
+    height: 52px;
+    border: 0;
+    outline: none;
+    color: var(--cinema-ink);
+    font: inherit;
+    font-size: 1.3rem;
+    background: transparent;
+
+    &::placeholder {
+        color: var(--cinema-ink-3);
+    }
+
+    // Hide the browser's own clear button; there's a styled one next to the field
+    &::-webkit-search-cancel-button {
+        appearance: none;
+    }
+}
+
+.cinema-search__results {
+    padding-top: 0;
+}
+
+.cinema-search__suggestions {
+    .cinema-row__title {
+        margin-bottom: 14px;
+    }
+}
+
+.cinema-search__chips {
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 0 var(--cinema-gutter);
+
+    .cinema-season {
+        color: var(--cinema-ink);
+        text-decoration: none;
+    }
 }
