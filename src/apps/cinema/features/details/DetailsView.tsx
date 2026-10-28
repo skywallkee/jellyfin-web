@@ -16,6 +16,8 @@ import { getBackdropUrl, getLogoUrl, isMostlyWide } from '../../utils/images';
 import { formatRuntime, getDisplayTitle, getEpisodeLabel, getPeopleNames, getRemainingTicks, getStreamLanguages } from '../../utils/items';
 import { playItem } from '../../utils/actions';
 
+import { useHideLegacyView } from '../../hooks/useHideLegacyView';
+
 import { useSeasons, useSeriesNextUp, useSimilarItems } from './api';
 import CastPanel from './CastPanel';
 import EpisodesPanel from './EpisodesPanel';
@@ -82,6 +84,8 @@ interface DetailsViewProps {
 }
 
 const DetailsView: FC<DetailsViewProps> = ({ item, variant = 'page' }) => {
+    // As a card it sits over whatever page is open, so only the full page replaces the previous view
+    useHideLegacyView(variant === 'page');
     const { api } = useApi();
     const isSeriesType = Boolean(item.Type && SERIES_TYPES.has(item.Type));
     const seriesId = item.Type === 'Series' ? item.Id : item.SeriesId;

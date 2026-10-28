@@ -133,3 +133,54 @@
     white-space: nowrap;
     text-overflow: ellipsis;
 }
+
+// "← All settings" link above each settings page
+.cinema-backbar {
+    box-sizing: border-box;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 12px var(--cinema-gutter) 4px;
+    animation: cinema-rise 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+}
+
+.cinema-backbar__link {
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+    padding: 9px 16px 9px 12px;
+    border-radius: 999px;
+    color: var(--cinema-ink-2);
+    font-size: 0.92rem;
+    text-decoration: none;
+    transition: color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+
+    svg {
+        transition: transform 0.25s ease;
+    }
+
+    &:hover {
+        color: var(--cinema-ink);
+        background-color: var(--cinema-glass-strong);
+
+        svg {
+            transform: translateX(-3px);
+        }
+    }
+
+    &.cinema-focusable:focus-visible {
+        transform: none;
+        box-shadow: 0 0 0 2px var(--cinema-focus);
+    }
+}
+
+// Settings pages are positioned at the top of the content area and ignore the bar above them,
+// so push their content down to clear it. jellyfin-web sets `.libraryPage { padding-top: 7em !important }`,
+// which can only be overridden with !important.
+.cinema-app .cinema-main--with-backbar .page.libraryPage.mainAnimatedPage {
+    padding-top: 168px !important;
+}
+
+// Pages laid out normally (e.g. Display) already sit below the bar, so they only need a small gap
+.cinema-app .cinema-main--with-backbar .page.libraryPage:not(.mainAnimatedPage) {
+    padding-top: 20px !important;
+}

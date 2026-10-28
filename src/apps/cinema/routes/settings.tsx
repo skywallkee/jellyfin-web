@@ -28,6 +28,7 @@ import shell from 'scripts/shell';
 import Dashboard from 'utils/dashboard';
 
 import CinemaSettingsControls from '../components/CinemaSettingsControls';
+import { useHideLegacyView } from '../hooks/useHideLegacyView';
 
 interface Tile {
     key: string;
@@ -73,6 +74,7 @@ const TileSection: FC<{ titleKey?: string; tiles: (Tile | false)[]; offset?: num
 };
 
 const Settings: FC = () => {
+    useHideLegacyView();
     const { api, user } = useApi();
     const { data: isQuickConnectEnabled } = useQuickConnectEnabled();
     const userId = user?.Id;

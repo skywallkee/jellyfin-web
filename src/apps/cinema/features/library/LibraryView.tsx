@@ -13,6 +13,8 @@ import MediaCard from '../../components/MediaCard';
 import ScrollTrack from '../../components/ScrollTrack';
 import { getBackdropUrl, isMostlyWide } from '../../utils/images';
 
+import { useHideLegacyView } from '../../hooks/useHideLegacyView';
+
 import { type LibraryFilter, PAGE_SIZE, useLibraryGenres, useLibraryItems } from './api';
 
 interface SortOption {
@@ -78,6 +80,7 @@ interface LibraryViewProps {
 }
 
 const LibraryView: FC<LibraryViewProps> = ({ parentId, itemTypes }) => {
+    useHideLegacyView();
     const { api } = useApi();
     const [ searchParams, setSearchParams ] = useSearchParams();
     const { data: library } = useItem(parentId);

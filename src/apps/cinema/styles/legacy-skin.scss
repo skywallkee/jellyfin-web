@@ -111,6 +111,64 @@
         }
     }
 
+    // Library list icons (e.g. Home > Library order) use the theme accent instead of Jellyfin blue
+    .listItemIcon {
+        color: #0b0c14;
+        background: linear-gradient(135deg, var(--cinema-accent), var(--cinema-accent-2));
+    }
+
+    // Profile: the avatar block and each form become cards like the other settings pages
+    .userPasswordPage {
+        .readOnlyContent,
+        .detailSection {
+            box-sizing: border-box;
+            // Same width as the password form's container, so the cards line up
+            max-width: 800px;
+            margin: 0 auto 18px;
+            padding: 20px 24px;
+            border: 1px solid var(--cinema-glass-edge);
+            border-radius: 20px;
+            background: var(--cinema-glass);
+            animation: cinema-rise 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+        }
+
+        .readOnlyContent {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+        }
+
+        // The form's own wrapper adds nothing visually once the section is a card
+        .detailSection .detailSection {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            background: none;
+            animation: none;
+        }
+
+        .imagePlaceHolder {
+            flex: none;
+            overflow: hidden;
+            border-radius: 999px;
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.08), 0 12px 40px var(--cinema-glow-soft);
+        }
+
+        .username {
+            margin: 0 0 8px;
+        }
+    }
+
+    // Display (MUI): each group of fields becomes a card
+    #displayPreferencesPage form > .MuiStack-root > .MuiStack-root {
+        box-sizing: border-box;
+        padding: 20px 24px;
+        border: 1px solid var(--cinema-glass-edge);
+        border-radius: 20px;
+        background: var(--cinema-glass);
+        animation: cinema-rise 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+    }
+
     // Forms built with MUI (e.g. Display preferences)
     .MuiOutlinedInput-root {
         border-radius: 12px;

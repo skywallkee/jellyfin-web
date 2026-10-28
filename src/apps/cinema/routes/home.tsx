@@ -14,6 +14,7 @@ import globalize from 'lib/globalize';
 import type { ItemDto } from 'types/base/models/item-dto';
 
 import HeroBanner from '../components/HeroBanner';
+import { useHideLegacyView } from '../hooks/useHideLegacyView';
 import type { CardShape } from '../components/MediaCard';
 import MediaRow from '../components/MediaRow';
 import { hasBackdrop, isMostlyWide } from '../utils/images';
@@ -68,6 +69,7 @@ const LatestRow: FC<{ library: ItemDto }> = ({ library }) => {
 };
 
 const Home: FC = () => {
+    useHideLegacyView();
     const { user } = useApi();
     const commonParams = {
         fields: FIELDS,

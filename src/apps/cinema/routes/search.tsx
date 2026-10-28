@@ -13,6 +13,7 @@ import type { ItemDto } from 'types/base/models/item-dto';
 
 import type { CardShape } from '../components/MediaCard';
 import MediaRow from '../components/MediaRow';
+import { useHideLegacyView } from '../hooks/useHideLegacyView';
 import { useItemLink } from '../hooks/useItemLink';
 import { isMostlyWide } from '../utils/images';
 
@@ -106,6 +107,7 @@ const Results: FC<ResultsProps> = ({ query, parentId, collectionType }) => {
 };
 
 const Search: FC = () => {
+    useHideLegacyView();
     const [ searchParams ] = useSearchParams();
     const parentId = searchParams.get('parentId') ?? undefined;
     const collectionType = (searchParams.get('collectionType') ?? undefined) as CollectionType | undefined;
