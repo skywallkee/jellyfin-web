@@ -5,9 +5,7 @@ import ViewManagerPage from 'components/viewManager/ViewManagerPage';
 import { useItem } from 'hooks/useItem';
 
 import DetailsView from '../features/details/DetailsView';
-
-/** Item types with a Cinema details page. Everything else (people, albums, collections…) uses the existing page. */
-const CINEMA_DETAIL_TYPES = new Set([ 'Movie', 'Series', 'Season', 'Episode', 'Video', 'MusicVideo', 'Trailer' ]);
+import { CINEMA_DETAIL_TYPES } from '../hooks/useItemLink';
 
 const LegacyDetails: FC = () => (
     <ViewManagerPage

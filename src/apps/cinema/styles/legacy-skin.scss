@@ -1,0 +1,181 @@
+// Cinema: restyles the existing settings pages (legacy and MUI forms) to match the glass look
+
+// Existing settings pages restyled to match (legacy forms and MUI forms)
+.cinema-app {
+    .settingsContainer,
+    .readOnlyContent {
+        max-width: 860px;
+        margin: 0 auto;
+    }
+
+    .userPreferencesPage .verticalSection,
+    .userProfileSettingsPage .verticalSection {
+        box-sizing: border-box;
+        margin-bottom: 18px;
+        padding: 20px 24px;
+        border: 1px solid var(--cinema-glass-edge);
+        border-radius: 20px;
+        background: var(--cinema-glass);
+        animation: cinema-rise 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+    }
+
+    .sectionTitle {
+        margin-top: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+    }
+
+    .selectLabel,
+    .inputLabel,
+    .textareaLabel {
+        color: var(--cinema-ink-2);
+        font-size: 0.85rem;
+    }
+
+    .fieldDescription {
+        color: var(--cinema-ink-3);
+    }
+
+    .emby-select,
+    .emby-input,
+    .emby-textarea {
+        border: 1px solid var(--cinema-glass-edge);
+        border-radius: 12px;
+        color: var(--cinema-ink);
+        background-color: rgba(255, 255, 255, 0.05);
+        transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+
+        &:hover {
+            background-color: rgba(255, 255, 255, 0.08);
+        }
+
+        &:focus {
+            border-color: var(--cinema-accent);
+            outline: none;
+            box-shadow: 0 0 0 3px var(--cinema-glow-soft);
+        }
+    }
+
+    .emby-select option {
+        color: var(--cinema-ink);
+        background: var(--cinema-bg);
+    }
+
+    .checkboxOutline {
+        border-color: var(--cinema-glass-edge);
+        border-radius: 6px;
+        transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .emby-checkbox:checked ~ .checkboxOutline {
+        border-color: var(--cinema-accent);
+        background-color: var(--cinema-accent);
+
+        .checkboxIcon {
+            color: #0b0c14;
+        }
+    }
+
+    .emby-button.raised {
+        border-radius: 999px;
+        color: var(--cinema-ink);
+        background: var(--cinema-glass-strong);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .emby-button.raised.button-submit {
+        color: #0b0c14;
+        font-weight: 600;
+        background: #fff;
+
+        &:hover {
+            box-shadow: 0 8px 30px var(--cinema-glow-soft);
+            transform: translateY(-1px);
+        }
+    }
+
+    .paperList {
+        overflow: hidden;
+        border: 1px solid var(--cinema-glass-edge);
+        border-radius: 18px;
+        background: var(--cinema-glass);
+    }
+
+    .listItem {
+        border-radius: 12px;
+        transition: background-color 0.2s ease;
+
+        &:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+    }
+
+    // Forms built with MUI (e.g. Display preferences)
+    .MuiOutlinedInput-root {
+        border-radius: 12px;
+        background-color: rgba(255, 255, 255, 0.05);
+
+        .MuiOutlinedInput-notchedOutline {
+            border-color: var(--cinema-glass-edge);
+        }
+
+        &:hover .MuiOutlinedInput-notchedOutline {
+            border-color: rgba(255, 255, 255, 0.35);
+        }
+
+        &.Mui-focused .MuiOutlinedInput-notchedOutline {
+            border-color: var(--cinema-accent);
+            box-shadow: 0 0 0 3px var(--cinema-glow-soft);
+        }
+    }
+
+    .MuiFilledInput-root {
+        border: 1px solid var(--cinema-glass-edge);
+        border-radius: 12px;
+        background-color: rgba(255, 255, 255, 0.05);
+        transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+
+        // Replace MUI's underline with the rounded border
+        &::before,
+        &::after {
+            display: none;
+        }
+
+        &:hover {
+            background-color: rgba(255, 255, 255, 0.08);
+        }
+
+        &.Mui-focused {
+            border-color: var(--cinema-accent);
+            background-color: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 3px var(--cinema-glow-soft);
+        }
+    }
+
+    .MuiTypography-h2 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+    }
+
+    .MuiInputLabel-root.Mui-focused,
+    .MuiCheckbox-root.Mui-checked,
+    .MuiSwitch-switchBase.Mui-checked {
+        color: var(--cinema-accent);
+    }
+
+    .MuiButton-contained {
+        border-radius: 999px;
+        color: #0b0c14;
+        font-weight: 600;
+        text-transform: none;
+        background: #fff;
+        box-shadow: none;
+
+        &:hover {
+            background: #fff;
+            box-shadow: 0 8px 30px var(--cinema-glow-soft);
+        }
+    }
+}

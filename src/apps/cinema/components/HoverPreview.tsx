@@ -19,7 +19,8 @@ import { useItem } from 'hooks/useItem';
 import globalize from 'lib/globalize';
 import type { ItemDto } from 'types/base/models/item-dto';
 
-import { getItemPath, playItem } from '../utils/actions';
+import { playItem } from '../utils/actions';
+import { useItemLink } from '../hooks/useItemLink';
 import { getBackdropUrl, getLandscapeUrl } from '../utils/images';
 import { getDisplayTitle, getRemainingTicks } from '../utils/items';
 import { useCinemaSettings } from '../utils/settings';
@@ -128,6 +129,7 @@ const PreviewPanel: FC<PreviewPanelProps> = ({ target, onEnter, onLeave }) => {
     // The card may come from a list without a description, so load the full item
     const { data: fullItem } = useItem(target.item.Id ?? undefined);
     const item = fullItem ?? target.item;
+    const itemLink = useItemLink()(item);
     const { left, top, width } = getPosition(target.rect);
     const imageUrl = api ? getBackdropUrl(api, item, 960) ?? getLandscapeUrl(api, item, 960) : undefined;
     const title = getDisplayTitle(item);
@@ -146,7 +148,7 @@ const PreviewPanel: FC<PreviewPanelProps> = ({ target, onEnter, onLeave }) => {
             aria-label={title}
         >
             <Link
-                to={getItemPath(item)}
+                {...itemLink}
                 className='cinema-preview__media'
                 style={imageUrl ? { backgroundImage: `url("${imageUrl}")` } : undefined}
                 tabIndex={-1}
@@ -176,7 +178,7 @@ const PreviewPanel: FC<PreviewPanelProps> = ({ target, onEnter, onLeave }) => {
                     <PlayedButton item={item} />
                     <FavoriteButton item={item} />
                     <Link
-                        to={getItemPath(item)}
+                        {...itemLink}
                         className='cinema-btn cinema-btn--round cinema-glass cinema-preview__info'
                         aria-label={globalize.translate('ButtonInfo')}
                         title={globalize.translate('ButtonInfo')}

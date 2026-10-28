@@ -45,7 +45,10 @@ export const FavoriteButton: FC<{ item: ItemDto }> = ({ item }) => {
             aria-label={globalize.translate('Favorite')}
             title={globalize.translate('Favorite')}
         >
-            {isFavorite ? <Favorite /> : <FavoriteBorder />}
+            {/* Keyed so the icon remounts and plays its pop animation on each toggle */}
+            {isFavorite ?
+                <Favorite key='on' className='cinema-pop cinema-heart' /> :
+                <FavoriteBorder key='off' />}
         </button>
     );
 };
@@ -79,7 +82,11 @@ export const PlayedButton: FC<{ item: ItemDto }> = ({ item }) => {
             aria-label={label}
             title={label}
         >
-            <Check sx={{ color: isPlayed ? 'var(--cinema-accent)' : undefined }} />
+            <Check
+                key={isPlayed ? 'on' : 'off'}
+                className={isPlayed ? 'cinema-pop' : undefined}
+                sx={{ color: isPlayed ? 'var(--cinema-accent)' : undefined }}
+            />
         </button>
     );
 };

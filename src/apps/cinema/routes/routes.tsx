@@ -17,7 +17,8 @@ const CINEMA_USER_ROUTES: AsyncRoute[] = [
     { path: 'details', type: AppType.Cinema },
     { path: 'movies', type: AppType.Cinema },
     { path: 'tv', page: 'shows', type: AppType.Cinema },
-    { path: 'search', type: AppType.Cinema }
+    { path: 'search', type: AppType.Cinema },
+    { path: 'mypreferencesmenu', page: 'settings', type: AppType.Cinema }
 ];
 
 const cinemaPaths = new Set(CINEMA_USER_ROUTES.map(route => route.path));

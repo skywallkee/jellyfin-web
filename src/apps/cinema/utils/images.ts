@@ -66,8 +66,22 @@ const getPosterRef = (item: ItemDto) => (
     ?? toRef(item.SeriesId, item.SeriesPrimaryImageTag, ImageType.Primary)
 );
 
+/** Steps image widths are rounded to, so nearby screen sizes share the server's resized copies. */
+const WIDTH_STEP = 480;
+const MAX_IMAGE_WIDTH = 3840;
+
+/**
+ * Width to request for artwork that spans the screen: the screen's real pixel width
+ * (sharp on high-DPI displays), rounded up to a step and capped at 4K.
+ */
+export const getScreenImageWidth = () => {
+    if (typeof window === 'undefined') return 1920;
+    const pixels = window.innerWidth * (window.devicePixelRatio || 1);
+    return Math.min(MAX_IMAGE_WIDTH, Math.ceil(pixels / WIDTH_STEP) * WIDTH_STEP);
+};
+
 /** Full-screen artwork: a backdrop, or a wide primary image when there's no backdrop. */
-export const getBackdropUrl = (api: Api, item: ItemDto, maxWidth = 1920) =>
+export const getBackdropUrl = (api: Api, item: ItemDto, maxWidth = getScreenImageWidth()) =>
     buildUrl(api, getBackdropRef(item) ?? getWidePrimaryRef(item), maxWidth);
 
 export const hasBackdrop = (item: ItemDto) => Boolean(getBackdropRef(item) ?? getWidePrimaryRef(item));

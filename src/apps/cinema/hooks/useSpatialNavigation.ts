@@ -65,7 +65,7 @@ const isInFixedContainer = (el: HTMLElement) => {
 };
 
 /** Panels that keep arrow-key focus inside them while open. */
-const TRAP_SELECTOR = '.cinema-settings';
+const TRAP_SELECTOR = '.cinema-settings, .cinema-modal';
 
 /** The navigation bar and TV rail form their own zone, separate from the page content. */
 const NAV_SELECTOR = '.cinema-rail, .cinema-topnav';
@@ -149,8 +149,8 @@ export const useSpatialNavigation = (enabled: boolean) => {
             if (!direction) return;
             // Let text fields keep left/right for moving the cursor, unless it's already at that end
             if (isTextEntry(active) && !isCaretAtEdge(active, direction)) return;
-            // Let open dialogs and menus handle their own keys
-            if (active?.closest('[role="dialog"], [role="menu"], [role="listbox"], .dialogContainer')) return;
+            // Let open dialogs and menus handle their own keys, except Cinema's own panels which use this navigation
+            if (active?.closest('[role="dialog"], [role="menu"], [role="listbox"], .dialogContainer') && !active.closest(TRAP_SELECTOR)) return;
 
             // Only move between elements of the app itself, not overlays such as dev tools.
             // An open panel (like settings) keeps focus inside it until it's closed.

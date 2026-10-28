@@ -1,7 +1,10 @@
 import PlayArrow from '@mui/icons-material/PlayArrow';
+import Theaters from '@mui/icons-material/Theaters';
+import classNames from 'classnames';
 import React, { type FC, useEffect, useRef, useState } from 'react';
 
 import layoutManager from 'components/layoutManager';
+import { playbackManager } from 'components/playback/playbackmanager';
 import { useApi } from 'hooks/useApi';
 import globalize from 'lib/globalize';
 import type { ItemDto } from 'types/base/models/item-dto';
@@ -66,7 +69,19 @@ const getSubtitle = (item: ItemDto) => {
     return undefined;
 };
 
-const DetailsView: FC<{ item: ItemDto }> = ({ item }) => {
+const playTrailer = (item: ItemDto) => {
+    playbackManager.playTrailers(item).catch((err: unknown) => {
+        console.error('[Cinema] failed to play trailer', err);
+    });
+};
+
+interface DetailsViewProps {
+    item: ItemDto;
+    /** 'page' fills the screen; 'modal' is the details card shown over another page. */
+    variant?: 'page' | 'modal';
+}
+
+const DetailsView: FC<DetailsViewProps> = ({ item, variant = 'page' }) => {
     const { api } = useApi();
     const isSeriesType = Boolean(item.Type && SERIES_TYPES.has(item.Type));
     const seriesId = item.Type === 'Series' ? item.Id : item.SeriesId;
@@ -95,9 +110,10 @@ const DetailsView: FC<{ item: ItemDto }> = ({ item }) => {
     const facts = getFacts(item);
     const isPlayable = Boolean(item.MediaType === 'Video' || item.Type === 'Series' || item.Type === 'Season');
     const showSimilar = item.Type !== 'Episode' && (isSimilarPending || Boolean(similar?.length));
+    const hasTrailer = Boolean(item.LocalTrailerCount || item.RemoteTrailers?.length);
 
     return (
-        <div className='cinema-details'>
+        <div className={classNames('cinema-details', `cinema-details--${variant}`)}>
             <div
                 className='cinema-hero__backdrop cinema-details__backdrop'
                 style={backdropUrl ? { backgroundImage: `url("${backdropUrl}")` } : undefined}
@@ -125,6 +141,16 @@ const DetailsView: FC<{ item: ItemDto }> = ({ item }) => {
                             >
                                 <PlayArrow />
                                 {playLabel}
+                            </button>
+                        )}
+                        {hasTrailer && (
+                            <button
+                                type='button'
+                                className='cinema-btn cinema-glass cinema-focusable'
+                                onClick={() => playTrailer(item)}
+                            >
+                                <Theaters />
+                                {globalize.translate('ButtonTrailer')}
                             </button>
                         )}
                         <PlayedButton item={item} />

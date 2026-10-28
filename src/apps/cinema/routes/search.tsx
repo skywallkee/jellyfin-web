@@ -13,7 +13,7 @@ import type { ItemDto } from 'types/base/models/item-dto';
 
 import type { CardShape } from '../components/MediaCard';
 import MediaRow from '../components/MediaRow';
-import { getItemPath } from '../utils/actions';
+import { useItemLink } from '../hooks/useItemLink';
 import { isMostlyWide } from '../utils/images';
 
 const DEBOUNCE_MS = 400;
@@ -36,6 +36,7 @@ const getResultSubtitle = (item: ItemDto) => {
 
 const Suggestions: FC<{ parentId?: string }> = ({ parentId }) => {
     const { data: suggestions } = useSearchSuggestions(parentId);
+    const getItemLink = useItemLink();
     if (!suggestions?.length) return null;
 
     return (
@@ -45,7 +46,7 @@ const Suggestions: FC<{ parentId?: string }> = ({ parentId }) => {
                 {suggestions.map(item => (
                     <Link
                         key={item.Id}
-                        to={getItemPath(item as ItemDto)}
+                        {...getItemLink(item as ItemDto)}
                         className='cinema-season cinema-glass cinema-focusable'
                     >
                         {item.Name}

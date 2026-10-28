@@ -1,0 +1,205 @@
+// Cinema: motion and polish (page transitions, entrances, image loading, hero countdown, micro-interactions)
+
+// Page transitions: each screen eases in
+.cinema-page {
+    animation: cinema-page-in 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+}
+
+@keyframes cinema-page-in {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+// Images: lazy <img>, shimmer while loading, fade and sharpen in when ready
+img.cinema-card__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    filter: blur(8px);
+    transition: opacity 0.5s ease, filter 0.6s ease, transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.cinema-card.is-loaded img.cinema-card__image {
+    opacity: 1;
+    filter: none;
+}
+
+.cinema-card:not(.is-loaded) {
+    background-image: linear-gradient(90deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.04));
+    background-size: 200% 100%;
+    animation: cinema-shimmer 1.4s linear infinite;
+}
+
+// A hairline inner edge keeps cards crisp against dark backgrounds
+.cinema-card::after {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.07);
+    content: '';
+    pointer-events: none;
+}
+
+// Staggered entrances for rows and grids ("backwards" so hover transforms still work afterwards)
+.cinema-stagger .cinema-card {
+    opacity: 0;
+}
+
+.cinema-stagger.is-visible .cinema-card {
+    opacity: 1;
+    animation: cinema-card-rise 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+    animation-delay: calc(var(--cinema-i, 0) * 45ms);
+}
+
+@keyframes cinema-card-rise {
+    from {
+        opacity: 0;
+        transform: translateY(18px) scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+// Hero: countdown on the active page dot, readable text over any artwork
+.cinema-pager button {
+    position: relative;
+    overflow: hidden;
+
+    &.is-active {
+        background: rgba(255, 255, 255, 0.28);
+    }
+}
+
+.cinema-pager__fill {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: #fff;
+    transform: scaleX(0);
+    transform-origin: left center;
+    animation: cinema-countdown var(--cinema-rotate-ms, 9s) linear forwards;
+}
+
+.cinema-pager.is-paused .cinema-pager__fill {
+    animation-play-state: paused;
+}
+
+@keyframes cinema-countdown {
+    to {
+        transform: scaleX(1);
+    }
+}
+
+.cinema-hero__title,
+.cinema-details .cinema-hero__title {
+    text-shadow: 0 2px 30px rgba(0, 0, 0, 0.45);
+    text-wrap: balance;
+}
+
+.cinema-hero__overview,
+.cinema-details__overview,
+.cinema-hero .cinema-meta,
+.cinema-details .cinema-meta {
+    text-shadow: 0 1px 12px rgba(0, 0, 0, 0.5);
+}
+
+.cinema-hero__logo {
+    filter: drop-shadow(0 6px 30px rgba(0, 0, 0, 0.5));
+}
+
+// Top bar tightens and turns more solid once the page scrolls
+.cinema-topnav {
+    transition: top 0.35s ease, padding 0.35s ease, background-color 0.35s ease, box-shadow 0.35s ease;
+
+    &.is-scrolled {
+        top: 10px;
+        padding: 4px;
+        background-color: rgba(var(--cinema-bg-rgb), 0.82);
+        box-shadow: 0 14px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--cinema-glass-edge);
+    }
+}
+
+// Micro-interactions
+.cinema-btn:active,
+.cinema-iconbtn:active,
+.cinema-season:active,
+.cinema-tile:active {
+    transform: scale(0.96);
+    transition-duration: 0.08s;
+}
+
+.cinema-pop {
+    animation: cinema-pop 0.45s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+
+.cinema-heart {
+    color: #ff5a7a;
+}
+
+@keyframes cinema-pop {
+    0% {
+        transform: scale(0.6);
+    }
+
+    55% {
+        transform: scale(1.3);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+// General polish
+.cinema-app {
+    text-rendering: optimizeLegibility;
+
+    ::selection {
+        color: #0b0c14;
+        background: var(--cinema-accent);
+    }
+
+    ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        border: 3px solid transparent;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.18) padding-box;
+
+        &:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+    }
+}
+
+:root:has(.cinema-app) {
+    scrollbar-color: rgba(255, 255, 255, 0.2) var(--cinema-bg, #07080d);
+    background: #07080d;
+}
+
+.cinema-row__title {
+    letter-spacing: -0.01em;
+}
+
+.cinema-library__title {
+    text-wrap: balance;
+}

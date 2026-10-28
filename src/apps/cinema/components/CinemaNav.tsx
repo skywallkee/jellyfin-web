@@ -134,6 +134,20 @@ const useSlidingPill = (deps: unknown[]) => {
     };
 };
 
+/** Pixels scrolled before the top bar switches to its compact, more solid look. */
+const SCROLLED_THRESHOLD = 40;
+
+const useIsScrolled = () => {
+    const [ isScrolled, setIsScrolled ] = useState(false);
+    useEffect(() => {
+        const onScroll = () => setIsScrolled(window.scrollY > SCROLLED_THRESHOLD);
+        onScroll();
+        window.addEventListener('scroll', onScroll, { passive: true });
+        return () => window.removeEventListener('scroll', onScroll);
+    }, []);
+    return isScrolled;
+};
+
 const useSettingsPanel = () => {
     const [ isSettingsOpen, setIsSettingsOpen ] = useState(false);
     const toggleSettings = useCallback(() => setIsSettingsOpen(open => !open), []);
@@ -151,9 +165,10 @@ export const CinemaTopNav: FC = () => {
     const location = useLocation();
     const { containerRef, handlers, pillStyle } = useSlidingPill([ location.pathname, location.search, links ]);
     const { isSettingsOpen, toggleSettings, closeSettings } = useSettingsPanel();
+    const isScrolled = useIsScrolled();
 
     return (
-        <nav className='cinema-topnav cinema-glass' aria-label={globalize.translate('HeaderNavigation')}>
+        <nav className={classNames('cinema-topnav cinema-glass', { 'is-scrolled': isScrolled })} aria-label={globalize.translate('HeaderNavigation')}>
             <Link className='cinema-brand' to='/home' tabIndex={-1}>
                 <span className='cinema-brand__mark' aria-hidden='true' />
                 Jellyfin

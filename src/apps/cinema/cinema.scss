@@ -1627,3 +1627,134 @@
         transform: rotate(45deg);
     }
 }
+
+// Details card over the current page
+.cinema-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1050;
+    display: flex;
+    // Centred when it fits; taller cards scroll inside
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+}
+
+.cinema-modal__scrim {
+    position: absolute;
+    inset: 0;
+    padding: 0;
+    border: 0;
+    background: rgba(var(--cinema-bg-rgb), 0.72);
+    cursor: default;
+    animation: cinema-fade-in 0.25s ease both;
+}
+
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .cinema-modal__scrim {
+        background: rgba(var(--cinema-bg-rgb), 0.55);
+        backdrop-filter: blur(10px) saturate(120%);
+    }
+}
+
+.cinema-modal__card {
+    position: relative;
+    box-sizing: border-box;
+    width: min(1200px, 100%);
+    max-height: calc(100vh - 64px);
+    overflow-x: hidden;
+    overflow-y: auto;
+    border-radius: 28px;
+    background: var(--cinema-bg);
+    box-shadow: 0 40px 120px rgba(0, 0, 0, 0.7), 0 0 0 1px var(--cinema-glass-edge);
+    animation: cinema-card-in 0.42s cubic-bezier(0.2, 0.9, 0.25, 1) both;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+}
+
+// The card is solid: it sits over busy artwork, so see-through glass would hurt readability
+.cinema-modal__card.cinema-glass {
+    background: var(--cinema-bg);
+    backdrop-filter: none;
+}
+
+@keyframes cinema-card-in {
+    from {
+        opacity: 0;
+        transform: translateY(40px) scale(0.96);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+.cinema-modal__close {
+    position: sticky;
+    top: 16px;
+    z-index: 5;
+    float: right;
+    width: 44px;
+    height: 44px;
+    margin: 16px 16px -60px 0;
+    color: var(--cinema-ink);
+}
+
+.cinema-modal__loading {
+    height: 70vh;
+}
+
+// Details laid out inside the card
+.cinema-details--modal {
+    min-height: 0;
+    margin-top: 0;
+    padding-top: 0;
+
+    .cinema-details__backdrop {
+        position: absolute;
+        right: 0;
+        bottom: auto;
+        left: 0;
+        height: 560px;
+        animation: cinema-fade-in 0.6s ease both;
+
+        &::after {
+            background:
+                linear-gradient(90deg, rgba(var(--cinema-bg-rgb), 0.92) 0%, rgba(var(--cinema-bg-rgb), 0.5) 45%, rgba(var(--cinema-bg-rgb), 0.1) 75%),
+                linear-gradient(0deg, var(--cinema-bg) 0%, rgba(var(--cinema-bg-rgb), 0.5) 40%, rgba(var(--cinema-bg-rgb), 0) 70%);
+        }
+    }
+
+    .cinema-details__grid {
+        min-height: 0;
+        padding: 220px 44px 28px;
+    }
+
+    .cinema-details__main {
+        animation: cinema-rise 0.55s 0.08s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    }
+
+    .cinema-details__side {
+        animation: cinema-rise 0.55s 0.16s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    }
+
+    .cinema-details__rows {
+        --cinema-gutter: 44px;
+    }
+}
+
+@media (max-width: 900px) {
+    .cinema-modal {
+        padding: 0;
+    }
+
+    .cinema-modal__card {
+        max-height: 100vh;
+        border-radius: 0;
+    }
+
+    .cinema-details--modal .cinema-details__grid {
+        padding: 180px 16px 20px;
+    }
+}

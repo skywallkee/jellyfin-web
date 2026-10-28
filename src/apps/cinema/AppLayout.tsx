@@ -11,10 +11,14 @@ import { LibraryProvider } from 'apps/modern/features/libraries/hooks/useLibrary
 
 import { CinemaRail, CinemaTopNav } from './components/CinemaNav';
 import { HoverPreviewProvider } from './components/HoverPreview';
+import DetailsModal from './features/details/DetailsModal';
 import { useSpatialNavigation } from './hooks/useSpatialNavigation';
 import { useCinemaSettings } from './utils/settings';
 
 import './cinema.scss';
+import './styles/motion.scss';
+import './styles/settings-page.scss';
+import './styles/legacy-skin.scss';
 
 /** Pages that draw their own full-bleed artwork under the nav. */
 const FULL_BLEED_PATHS = new Set([ '/home' ]);
@@ -50,9 +54,13 @@ export const Component = () => {
                         })}
                     >
                         <AppBody>
-                            <Outlet />
+                            {/* Keyed by path so each screen plays its entrance; opening a details card (?item=) doesn't */}
+                            <div key={location.pathname} className='cinema-page'>
+                                <Outlet />
+                            </div>
                         </AppBody>
                     </main>
+                    <DetailsModal />
                 </HoverPreviewProvider>
 
                 <ThemeCss />

@@ -13,7 +13,7 @@ import MediaCard from '../../components/MediaCard';
 import ScrollTrack from '../../components/ScrollTrack';
 import { getBackdropUrl, isMostlyWide } from '../../utils/images';
 
-import { type LibraryFilter, useLibraryGenres, useLibraryItems } from './api';
+import { type LibraryFilter, PAGE_SIZE, useLibraryGenres, useLibraryItems } from './api';
 
 interface SortOption {
     key: string;
@@ -176,14 +176,16 @@ const LibraryView: FC<LibraryViewProps> = ({ parentId, itemTypes }) => {
                 </ScrollTrack>
             )}
 
-            <div className={classNames('cinema-grid', `cinema-grid--${shape}`)}>
+            <div className={classNames('cinema-grid cinema-stagger is-visible', `cinema-grid--${shape}`)}>
                 {isPending ?
                     Array.from({ length: SKELETON_COUNT }, (_, i) => (
                         <span key={i} className={classNames('cinema-card cinema-skeleton', `cinema-card--${shape}`)} />
                     )) :
-                    items.map(item => (
+                    items.map((item, index) => (
                         <MediaCard
                             key={item.Id}
+                            // Pages after the first stagger from their own start, not from item 60+
+                            index={index % PAGE_SIZE}
                             item={item}
                             shape={shape}
                             subtitle={item.ProductionYear?.toString()}
