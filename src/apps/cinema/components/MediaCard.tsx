@@ -7,7 +7,8 @@ import { useApi } from 'hooks/useApi';
 import type { ItemDto } from 'types/base/models/item-dto';
 
 import { getLandscapeUrl, getPosterUrl } from '../utils/images';
-import { getDisplayTitle, getEpisodeLabel, getItemPath } from '../utils/items';
+import { getDisplayTitle, getEpisodeLabel } from '../utils/items';
+import { getItemPath } from '../utils/actions';
 
 export type CardShape = 'landscape' | 'poster' | 'square';
 

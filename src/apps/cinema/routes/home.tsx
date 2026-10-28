@@ -16,7 +16,7 @@ import type { ItemDto } from 'types/base/models/item-dto';
 import HeroBanner from '../components/HeroBanner';
 import type { CardShape } from '../components/MediaCard';
 import MediaRow from '../components/MediaRow';
-import { hasBackdrop, hasWidePrimary } from '../utils/images';
+import { hasBackdrop, isMostlyWide } from '../utils/images';
 import { formatRuntime, getRemainingTicks } from '../utils/items';
 
 const ROW_LIMIT = 16;
@@ -54,9 +54,7 @@ const LatestRow: FC<{ library: ItemDto }> = ({ library }) => {
     });
 
     const items = data as ItemDto[] | undefined;
-    // Libraries of video clips only have wide frame grabs, so show them as landscape cards
-    const isMostlyWide = Boolean(items?.length) && items!.filter(hasWidePrimary).length > items!.length / 2;
-    const shape = isMostlyWide ? 'landscape' : LATEST_ROW_SHAPES[library.CollectionType ?? ''] ?? 'poster';
+    const shape = isMostlyWide(items) ? 'landscape' : LATEST_ROW_SHAPES[library.CollectionType ?? ''] ?? 'poster';
 
     return (
         <MediaRow

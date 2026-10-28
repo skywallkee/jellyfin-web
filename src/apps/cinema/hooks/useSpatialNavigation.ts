@@ -56,6 +56,11 @@ const isInFixedContainer = (el: HTMLElement) => {
 
 const center = (rect: DOMRect) => [ rect.left + rect.width / 2, rect.top + rect.height / 2 ];
 
+/** Distance between two spans on one axis; 0 when they overlap. */
+const spanGap = (startA: number, endA: number, startB: number, endB: number) => (
+    Math.max(0, startB - endA, startA - endB)
+);
+
 /** Whether two rects share some vertical span, i.e. sit in the same row. */
 const overlapsVertically = (a: DOMRect, b: DOMRect) => a.top < b.bottom && b.top < a.bottom;
 
@@ -77,7 +82,11 @@ export const findNext = (from: HTMLElement, direction: Direction, candidates: HT
         const [ cx, cy ] = center(rect);
         const along = (cx - fx) * dx + (cy - fy) * dy;
         if (along <= 1) continue;
-        const across = Math.abs((cx - fx) * dy) + Math.abs((cy - fy) * dx);
+        // Sideways distance is measured edge to edge, so wide targets (like an episode list) directly
+        // above or below count as in line even when their centres are far apart
+        const across = dx === 0 ?
+            spanGap(fromRect.left, fromRect.right, rect.left, rect.right) :
+            spanGap(fromRect.top, fromRect.bottom, rect.top, rect.bottom);
         const score = along + across * CROSS_AXIS_WEIGHT;
         if (score < bestScore) {
             bestScore = score;
@@ -126,7 +135,9 @@ export const useSpatialNavigation = (enabled: boolean) => {
             // Let open dialogs and menus handle their own keys
             if (active?.closest('[role="dialog"], [role="menu"], [role="listbox"], .dialogContainer')) return;
 
-            const candidates = Array.from(document.querySelectorAll<HTMLElement>(FOCUSABLE_QUERY)).filter(isVisible);
+            // Only move between elements of the app itself, not overlays such as dev tools
+            const scope = document.querySelector('.cinema-app') ?? document;
+            const candidates = Array.from(scope.querySelectorAll<HTMLElement>(FOCUSABLE_QUERY)).filter(isVisible);
             if (!candidates.length) return;
 
             e.preventDefault();

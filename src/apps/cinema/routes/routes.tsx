@@ -13,7 +13,8 @@ import { AppType } from 'constants/appType';
 
 /** Pages the cinema app draws itself. Everything else falls back to the modern app's pages. */
 const CINEMA_USER_ROUTES: AsyncRoute[] = [
-    { path: 'home', type: AppType.Cinema }
+    { path: 'home', type: AppType.Cinema },
+    { path: 'details', type: AppType.Cinema }
 ];
 
 const cinemaPaths = new Set(CINEMA_USER_ROUTES.map(route => route.path));
@@ -33,7 +34,9 @@ export const APP_ROUTES: RouteObject[] = [
                     ...ASYNC_USER_ROUTES
                         .filter(route => !cinemaPaths.has(route.path))
                         .map(toAsyncPageRoute),
-                    ...LEGACY_USER_ROUTES.map(toViewManagerPageRoute),
+                    ...LEGACY_USER_ROUTES
+                        .filter(route => !cinemaPaths.has(route.path))
+                        .map(toViewManagerPageRoute),
 
                     // The video page combines new controls with the legacy player view
                     {

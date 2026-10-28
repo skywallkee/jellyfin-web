@@ -28,6 +28,11 @@ const WIDE_ASPECT_RATIO = 1.2;
 
 export const hasWidePrimary = (item: ItemDto) => (item.PrimaryImageAspectRatio ?? 0) > WIDE_ASPECT_RATIO;
 
+/** Video clips only have wide frame grabs, so a row of mostly-wide images is shown as landscape cards. */
+export const isMostlyWide = (items?: ItemDto[]) => (
+    Boolean(items?.length) && (items ?? []).filter(hasWidePrimary).length > (items ?? []).length / 2
+);
+
 const getWidePrimaryRef = (item: ItemDto) => (
     hasWidePrimary(item) ? toRef(item.Id, item.ImageTags?.Primary, ImageType.Primary) : undefined
 );

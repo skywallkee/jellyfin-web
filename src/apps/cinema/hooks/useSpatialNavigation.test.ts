@@ -53,6 +53,14 @@ describe('findNext', () => {
         expect(findNext(c, 'right', [ ...all, stray ])).toBe(stray);
     });
 
+    it('treats a wide target directly above as in line, even when its centre is far away', () => {
+        // A small card under the left edge of a wide list row, with a narrow tab further up but directly in line
+        const card = box(0, 500, 80, 80);
+        const wideRow = box(0, 300, 800, 80);
+        const tab = box(0, 0, 80, 40);
+        expect(findNext(card, 'up', [ card, wideRow, tab ])).toBe(wideRow);
+    });
+
     it('ignores the element itself and its ancestors', () => {
         const parent = box(0, 0, 400, 400);
         const child = box(10, 10, 50, 50);

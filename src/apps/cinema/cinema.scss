@@ -534,3 +534,304 @@
         animation: none !important;
     }
 }
+
+// Details
+.cinema-details {
+    position: relative;
+    min-height: 100vh;
+    // Run the artwork up under the floating nav (the main area is offset for legacy pages)
+    margin-top: calc(-1 * var(--cinema-nav-offset));
+    padding-top: calc(var(--cinema-nav-offset) + 24px);
+    isolation: isolate;
+}
+
+.cinema-details__backdrop {
+    position: fixed;
+    height: 100vh;
+
+    &::after {
+        background:
+            linear-gradient(90deg, rgba(7, 8, 13, 0.94) 0%, rgba(7, 8, 13, 0.6) 45%, rgba(7, 8, 13, 0.15) 75%),
+            linear-gradient(0deg, var(--cinema-bg) 0%, rgba(7, 8, 13, 0.55) 40%, rgba(7, 8, 13, 0) 70%);
+    }
+}
+
+.cinema-details__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    gap: 40px;
+    align-items: end;
+    min-height: calc(100vh - var(--cinema-nav-offset) - 80px);
+    padding: 0 var(--cinema-gutter) 24px;
+}
+
+.cinema-details__main {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    min-width: 0;
+}
+
+.cinema-details__side {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 0;
+}
+
+.cinema-details__subtitle {
+    margin: -6px 0 8px;
+    font-size: 1.35rem;
+    font-weight: 500;
+}
+
+.cinema-details__tagline {
+    margin: 0 0 10px;
+    font-size: 1.2rem;
+    font-weight: 300;
+}
+
+.cinema-details__overview {
+    display: -webkit-box;
+    max-width: 640px;
+    margin: 14px 0 22px;
+    overflow: hidden;
+    color: var(--cinema-ink-2);
+    font-size: 1.05rem;
+    line-height: 1.6;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 6;
+}
+
+.cinema-details__rows {
+    padding-top: 24px;
+}
+
+.cinema-details--loading {
+    background: var(--cinema-bg);
+}
+
+.cinema-facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    max-width: 640px;
+    margin: 26px 0 0;
+}
+
+.cinema-fact {
+    min-width: 0;
+    padding: 12px 16px;
+    border-radius: 16px;
+
+    dt {
+        color: var(--cinema-ink-3);
+        font-size: 0.72rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+    }
+
+    dd {
+        margin: 4px 0 0;
+        overflow: hidden;
+        font-size: 0.95rem;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+}
+
+// Glass panels on the right of details
+.cinema-panel {
+    padding: 18px;
+    border-radius: 18px;
+}
+
+.cinema-panel__title {
+    margin: 0 0 12px;
+    color: var(--cinema-ink-2);
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.cinema-seasons {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+    padding: 4px;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.cinema-season {
+    flex: none;
+    padding: 7px 14px;
+    border: 1px solid var(--cinema-glass-edge);
+    border-radius: 999px;
+    color: var(--cinema-ink-2);
+    font: inherit;
+    font-size: 0.9rem;
+    background: none;
+    cursor: pointer;
+
+    &.is-active {
+        border-color: #fff;
+        color: #0b0c14;
+        background: #fff;
+    }
+
+    &.cinema-focusable:focus-visible {
+        transform: none;
+        box-shadow: 0 0 0 2px var(--cinema-focus), 0 0 20px rgba(138, 180, 255, 0.5);
+    }
+}
+
+.cinema-episodes {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-height: min(46vh, 420px);
+    padding: 4px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+}
+
+.cinema-episode {
+    display: grid;
+    flex: none;
+    grid-template-columns: 132px minmax(0, 1fr);
+    gap: 14px;
+    align-items: center;
+    width: 100%;
+    min-height: 84px;
+    padding: 8px;
+    border: 0;
+    border-radius: 14px;
+    color: var(--cinema-ink);
+    font: inherit;
+    text-align: left;
+    background: none;
+    cursor: pointer;
+
+    &:hover,
+    &.is-current {
+        background: var(--cinema-glass-strong);
+    }
+
+    &.cinema-focusable:focus-visible {
+        transform: none;
+        background: var(--cinema-glass-strong);
+        box-shadow: 0 0 0 2px var(--cinema-focus);
+    }
+}
+
+.cinema-episode__thumb {
+    position: relative;
+    display: block;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border-radius: 10px;
+    background-color: #1a1d2b;
+    background-position: center;
+    background-size: cover;
+}
+
+.cinema-episode__progress {
+    position: absolute;
+    right: 6px;
+    bottom: 6px;
+    left: 6px;
+    margin: 0;
+}
+
+.cinema-episode__text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.cinema-episode__info {
+    color: var(--cinema-ink-3);
+    font-size: 0.8rem;
+}
+
+.cinema-episode__title {
+    overflow: hidden;
+    font-size: 0.95rem;
+    font-weight: 500;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.cinema-episode__overview {
+    overflow: hidden;
+    color: var(--cinema-ink-2);
+    font-size: 0.8rem;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.cinema-cast {
+    display: flex;
+    gap: 12px;
+    padding: 6px 4px 4px;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.cinema-person {
+    display: flex;
+    flex: none;
+    flex-direction: column;
+    align-items: center;
+    width: 84px;
+    padding: 4px;
+    border-radius: 12px;
+    color: var(--cinema-ink);
+    font-size: 0.78rem;
+    text-align: center;
+    text-decoration: none;
+
+    &.cinema-focusable:focus-visible {
+        transform: none;
+        background: var(--cinema-glass-strong);
+        box-shadow: 0 0 0 2px var(--cinema-focus);
+    }
+}
+
+.cinema-person__pic {
+    display: grid;
+    place-items: center;
+    width: 64px;
+    height: 64px;
+    margin-bottom: 6px;
+    border: 1px solid var(--cinema-glass-edge);
+    border-radius: 999px;
+    color: var(--cinema-ink-2);
+    font-size: 1.4rem;
+    background-color: #1a1d2b;
+    background-position: center top;
+    background-size: cover;
+}
+
+.cinema-person__name,
+.cinema-person__role {
+    display: block;
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.cinema-person__role {
+    color: var(--cinema-ink-3);
+}
+
+@media (max-width: 1100px) {
+    .cinema-details__grid {
+        grid-template-columns: minmax(0, 1fr);
+        min-height: 0;
+        padding-top: 30vh;
+    }
+}

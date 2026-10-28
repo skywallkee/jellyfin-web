@@ -1,17 +1,18 @@
-import Favorite from '@mui/icons-material/Favorite';
-import FavoriteBorder from '@mui/icons-material/FavoriteBorder';
 import InfoOutlined from '@mui/icons-material/InfoOutlined';
 import PlayArrow from '@mui/icons-material/PlayArrow';
 import React, { type FC, useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { useApi } from 'hooks/useApi';
-import { useToggleFavoriteMutation } from 'hooks/useFetchItems';
 import globalize from 'lib/globalize';
 import type { ItemDto } from 'types/base/models/item-dto';
 
 import { getBackdropUrl, getLogoUrl } from '../utils/images';
-import { formatRuntime, getDisplayTitle, getEpisodeLabel, getItemPath, getRemainingTicks, playItem } from '../utils/items';
+import { formatRuntime, getDisplayTitle, getRemainingTicks } from '../utils/items';
+import { getItemPath, playItem } from '../utils/actions';
+
+import { FavoriteButton } from './ItemActions';
+import ItemMeta from './ItemMeta';
 
 /** How long each featured title stays up before the hero moves to the next one. */
 const ROTATE_INTERVAL_MS = 9000;
@@ -19,59 +20,6 @@ const ROTATE_INTERVAL_MS = 9000;
 interface HeroBannerProps {
     items: ItemDto[];
 }
-
-const HeroMeta: FC<{ item: ItemDto }> = ({ item }) => {
-    const parts = [
-        getEpisodeLabel(item),
-        formatRuntime(item.RunTimeTicks),
-        item.Genres?.slice(0, 2).join(' · '),
-        item.CommunityRating ? `★ ${item.CommunityRating.toFixed(1)}` : undefined
-    ].filter(Boolean);
-
-    return (
-        <div className='cinema-meta'>
-            {item.ProductionYear && <span className='cinema-chip cinema-glass'>{item.ProductionYear}</span>}
-            {item.OfficialRating && <span className='cinema-chip cinema-glass'>{item.OfficialRating}</span>}
-            {parts.map((part, i) => (
-                <React.Fragment key={part}>
-                    {i > 0 && <span className='cinema-dot' aria-hidden='true' />}
-                    <span>{part}</span>
-                </React.Fragment>
-            ))}
-        </div>
-    );
-};
-
-const FavoriteButton: FC<{ item: ItemDto }> = ({ item }) => {
-    const [ isFavorite, setIsFavorite ] = useState(Boolean(item.UserData?.IsFavorite));
-    const { mutate } = useToggleFavoriteMutation();
-
-    useEffect(() => {
-        setIsFavorite(Boolean(item.UserData?.IsFavorite));
-    }, [ item ]);
-
-    const onClick = useCallback(() => {
-        if (!item.Id) return;
-        const wasFavorite = isFavorite;
-        setIsFavorite(!wasFavorite);
-        mutate(
-            { itemId: item.Id, isFavorite: wasFavorite },
-            { onError: () => setIsFavorite(wasFavorite) }
-        );
-    }, [ isFavorite, item.Id, mutate ]);
-
-    return (
-        <button
-            type='button'
-            className='cinema-btn cinema-btn--round cinema-glass cinema-focusable'
-            onClick={onClick}
-            aria-pressed={isFavorite}
-            aria-label={globalize.translate('Favorite')}
-        >
-            {isFavorite ? <Favorite /> : <FavoriteBorder />}
-        </button>
-    );
-};
 
 const HeroBanner: FC<HeroBannerProps> = ({ items }) => {
     const { api } = useApi();
@@ -128,7 +76,7 @@ const HeroBanner: FC<HeroBannerProps> = ({ items }) => {
                     <img className='cinema-hero__logo' src={logoUrl} alt={title} /> :
                     <h1 className='cinema-hero__title'>{title}</h1>}
 
-                <HeroMeta item={item} />
+                <ItemMeta item={item} />
 
                 {item.Overview && <p className='cinema-hero__overview'>{item.Overview}</p>}
 
