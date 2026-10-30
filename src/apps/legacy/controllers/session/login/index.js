@@ -62,12 +62,21 @@ function authenticateQuickConnect(apiClient, targetUrl) {
             return false;
         }
 
+        // The code as separate characters, with what to do with it and a sign that it's waiting.
+        // The dialog sanitizes this markup before showing it.
+        const digits = String(json.Code).split('')
+            .map(char => `<span class="cinema-qc__digit">${char}</span>`)
+            .join('');
         baseAlert({
             dialogOptions: {
                 id: 'quickConnectAlert'
             },
             title: globalize.translate('QuickConnect'),
-            text: globalize.translate('QuickConnectAuthorizeCode', json.Code)
+            html: `<div class="cinema-qc">
+                <div class="cinema-qc__code" role="img" aria-label="${globalize.translate('QuickConnectAuthorizeCode', json.Code)}">${digits}</div>
+                <p class="cinema-qc__hint">${globalize.translate('CinemaQuickConnectHint')}</p>
+                <span class="cinema-qc__waiting">${globalize.translate('CinemaQuickConnectWaiting')}</span>
+            </div>`
         });
 
         const connectUrl = apiClient.getUrl('/QuickConnect/Connect?Secret=' + json.Secret);

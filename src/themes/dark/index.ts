@@ -10,7 +10,7 @@ const theme = merge<ColorSystemOptions, ColorSystemOptions, ColorSystemOptions>(
     {
         palette: {
             SnackbarContent: {
-                bg: '#303030',
+                bg: '#1c1f2b',
                 color: 'rgba(255, 255, 255, 0.87)'
             }
         }

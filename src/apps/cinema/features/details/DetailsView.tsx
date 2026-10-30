@@ -13,12 +13,17 @@ import BackgroundClip from '../../components/BackgroundClip';
 import { FavoriteButton, PlayedButton } from '../../components/ItemActions';
 import ItemMeta from '../../components/ItemMeta';
 import MediaRow from '../../components/MediaRow';
+import MyListButton from '../../components/MyListButton';
+import RateButtons from '../../components/RateButtons';
 import ScoreRings from '../../components/ScoreRings';
 import { getBackdropUrl, getLogoUrl, isMostlyWide } from '../../utils/images';
+import { useIsSpoiler } from '../../utils/spoilers';
+import { DiaryButton } from '../diary/LogSheet';
 import { formatRuntime, getDisplayTitle, getEpisodeLabel, getPeopleNames, getRemainingTicks, getStreamLanguages } from '../../utils/items';
 import { playItem } from '../../utils/actions';
 import { useAmbientTint } from '../../utils/ambient';
 import { getItemColor } from '../../utils/blurhash';
+import { getYouTubeTrailerId } from '../../utils/trailer';
 
 import { useHideLegacyView } from '../../hooks/useHideLegacyView';
 
@@ -87,6 +92,11 @@ const getSubtitle = (item: ItemDto) => {
     return undefined;
 };
 
+/** The title's trailer if it has one, otherwise a clip of what Play would start. */
+const getClipItem = (item: ItemDto, target: ItemDto) => (
+    getYouTubeTrailerId(item) || item.LocalTrailerCount ? item : target
+);
+
 const playTrailer = (item: ItemDto) => {
     playbackManager.playTrailers(item).catch((err: unknown) => {
         console.error('[Cinema] failed to play trailer', err);
@@ -98,6 +108,14 @@ interface DetailsViewProps {
     /** 'page' fills the screen; 'modal' is the details card shown over another page. */
     variant?: 'page' | 'modal';
 }
+
+/** The description, unless it's an episode spoiler-free mode is keeping hidden. */
+const SpoilerSafeOverview: FC<{ item: ItemDto }> = ({ item }) => {
+    const isSpoiler = useIsSpoiler();
+    if (!item.Overview) return null;
+    if (isSpoiler(item)) return <p className='cinema-spoiler-note'>{globalize.translate('CinemaSpoilerHidden')}</p>;
+    return <Overview text={item.Overview} />;
+};
 
 const DetailsView: FC<DetailsViewProps> = ({ item, variant = 'page' }) => {
     // As a card it sits over whatever page is open, so only the full page replaces the previous view
@@ -135,6 +153,7 @@ const DetailsView: FC<DetailsViewProps> = ({ item, variant = 'page' }) => {
     const isPlayable = Boolean(item.MediaType === 'Video' || item.Type === 'Series' || item.Type === 'Season');
     const showSimilar = item.Type !== 'Episode' && (isSimilarPending || Boolean(similar?.length));
     const hasTrailer = Boolean(item.LocalTrailerCount || item.RemoteTrailers?.length);
+    const clipItem = getClipItem(item, target);
     const endsAt = isPlayable ? getEndsAt(getRemainingTicks(target) ?? target.RunTimeTicks) : undefined;
 
     return (
@@ -144,8 +163,8 @@ const DetailsView: FC<DetailsViewProps> = ({ item, variant = 'page' }) => {
                 style={backdropUrl ? { backgroundImage: `url("${backdropUrl}")` } : undefined}
             />
             <BackgroundClip
-                key={target.Id}
-                item={target}
+                key={clipItem.Id}
+                item={clipItem}
                 delayMs={CLIP_DELAY_MS}
                 className='cinema-details__clip'
             />
@@ -161,7 +180,7 @@ const DetailsView: FC<DetailsViewProps> = ({ item, variant = 'page' }) => {
                     <ItemMeta item={item} showQuality />
                     {endsAt && <p className='cinema-details__endsat'>{endsAt}</p>}
 
-                    {item.Overview && <Overview text={item.Overview} />}
+                    <SpoilerSafeOverview item={item} />
 
                     <div className='cinema-actions'>
                         {isPlayable && (
@@ -185,8 +204,11 @@ const DetailsView: FC<DetailsViewProps> = ({ item, variant = 'page' }) => {
                                 {globalize.translate('ButtonTrailer')}
                             </button>
                         )}
+                        <MyListButton item={item} />
                         <PlayedButton item={item} />
                         <FavoriteButton item={item} />
+                        <RateButtons item={item} />
+                        <DiaryButton item={item} />
                     </div>
 
                     <ScoreRings item={item} />

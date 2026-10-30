@@ -13,6 +13,7 @@ import globalize from 'lib/globalize';
 import type { ItemDto } from 'types/base/models/item-dto';
 
 import { useItemLink } from '../hooks/useItemLink';
+import { withoutDisliked } from '../utils/taste';
 import { useOverlay } from '../hooks/useOverlay';
 
 /** Dispatch this on window to start a pick from anywhere. */
@@ -35,7 +36,7 @@ const useCandidates = (isEnabled: boolean) => {
                 sortBy: [ ItemSortBy.Random ],
                 limit: POOL_SIZE
             }, { signal });
-            return (response.data.Items ?? []) as ItemDto[];
+            return withoutDisliked((response.data.Items ?? []) as ItemDto[]);
         },
         enabled: isEnabled && !!api && !!user?.Id,
         // A fresh shuffle every time

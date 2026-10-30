@@ -6,15 +6,7 @@ import { LayoutMode } from 'constants/layoutMode';
 import globalize from 'lib/globalize';
 
 import { playSound } from '../utils/sounds';
-import { areSoundsEnabled, type CinemaThemeId, useCinemaSettings } from '../utils/settings';
-
-const THEMES: { id: CinemaThemeId; labelKey: string }[] = [
-    { id: 'midnight', labelKey: 'CinemaThemeMidnight' },
-    { id: 'aurora', labelKey: 'CinemaThemeAurora' },
-    { id: 'ember', labelKey: 'CinemaThemeEmber' },
-    { id: 'emerald', labelKey: 'CinemaThemeEmerald' },
-    { id: 'mono', labelKey: 'CinemaThemeMono' }
-];
+import { areSoundsEnabled, CINEMA_THEMES as THEMES, useCinemaSettings } from '../utils/settings';
 
 const LAYOUTS: { mode: LayoutMode; labelKey: string }[] = [
     { mode: LayoutMode.Cinema, labelKey: 'LayoutCinema' },
@@ -109,6 +101,18 @@ const CinemaSettingsControls: FC = () => {
                 help={globalize.translate('CinemaThemeMusicHelp')}
                 checked={settings.themeMusic}
                 onChange={themeMusic => updateSettings({ themeMusic })}
+            />
+            <Toggle
+                label={globalize.translate('CinemaSpoilerFree')}
+                help={globalize.translate('CinemaSpoilerFreeHelp')}
+                checked={settings.spoilerFree}
+                onChange={spoilerFree => updateSettings({ spoilerFree })}
+            />
+            <Toggle
+                label={globalize.translate('CinemaSeasonal')}
+                help={globalize.translate('CinemaSeasonalHelp')}
+                checked={settings.seasonal}
+                onChange={seasonal => updateSettings({ seasonal })}
             />
             <Toggle
                 label={globalize.translate('LabelScreensaver')}

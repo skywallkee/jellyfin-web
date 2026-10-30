@@ -17,6 +17,15 @@ function setLayout(instance, layout, selectedLayout) {
 
 export const SETTING_KEY = 'layout';
 
+/**
+ * Only the Cinema layouts remain. Any other layout asked for (by an old setting, or a native app's
+ * default) becomes Cinema, or Cinema TV for the TV layout; "" (auto) stays as it is.
+ */
+const toCinemaLayout = (layout) => {
+    if (!layout || CinemaLayoutModes.has(layout)) return layout;
+    return layout === LayoutMode.Tv ? LayoutMode.CinemaTv : LayoutMode.Cinema;
+};
+
 class LayoutManager {
     tv = false;
     mobile = false;
@@ -28,18 +37,21 @@ class LayoutManager {
     cinemaTv = false;
 
     setLayout(layout = '', save = true) {
-        const layoutValue = (!layout || layout === LayoutMode.Auto) ? '' : layout;
+        const layoutValue = toCinemaLayout((!layout || layout === LayoutMode.Auto) ? '' : layout);
         const isLegacyLayout = LegacyLayoutModes.has(layoutValue);
         // Normalize layout mode to the base mode (e.g. 'mobile-legacy' -> 'mobile')
         const normalizedLayout = layoutValue.split('-')[0];
 
         if (!layoutValue) {
+            // Auto applies the default layout in full; only the choice of "auto" is saved
             this.autoLayout();
-        } else {
-            setLayout(this, LayoutMode.Mobile, normalizedLayout);
-            setLayout(this, LayoutMode.Tv, normalizedLayout);
-            setLayout(this, LayoutMode.Desktop, normalizedLayout);
+            if (save) appSettings.set(SETTING_KEY, '');
+            return;
         }
+
+        setLayout(this, LayoutMode.Mobile, normalizedLayout);
+        setLayout(this, LayoutMode.Tv, normalizedLayout);
+        setLayout(this, LayoutMode.Desktop, normalizedLayout);
 
         console.debug('[LayoutManager] using layout mode', normalizedLayout);
         this.modern = !isLegacyLayout;
@@ -58,8 +70,8 @@ class LayoutManager {
 
     getSavedLayout() {
         const saved = appSettings.get(SETTING_KEY);
-        // Validate that the saved layout is a supported layout mode
-        if (saved && Object.values(LayoutMode).includes(saved)) {
+        // Only the Cinema layouts remain; an older saved choice (desktop, mobile, tv…) means "auto"
+        if (saved && CinemaLayoutModes.has(saved)) {
             return saved;
         }
     }
@@ -68,7 +80,8 @@ class LayoutManager {
         // Take a guess at initial layout. The consuming app can override.
         // NOTE: The fallback to TV mode seems like an outdated choice. TVs should be detected properly or override the
         // default layout.
-        this.setLayout(browser.tv ? LayoutMode.Tv : this.defaultLayout || LayoutMode.Tv, false);
+        // TVs get the cinema app's remote-control variant; everything else the host's default (cinema in browsers).
+        this.setLayout(browser.tv ? LayoutMode.CinemaTv : this.defaultLayout || LayoutMode.Cinema, false);
     }
 
     init() {

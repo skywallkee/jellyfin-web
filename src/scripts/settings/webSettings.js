@@ -106,6 +106,31 @@ export function getMenuLinks() {
     });
 }
 
+/**
+ * The "Request" button in the Cinema top bar, set in config.json under "requestButton":
+ * - enabled: show the button (it's also hidden while url is empty)
+ * - label: button text; empty uses the translated "Request"
+ * - url: where it goes (e.g. the Seerr address); only http(s) links are used
+ * - openInNewTab: open the link in a new tab
+ * - followSeerrPublicLink: let the server's start script fill url with Seerr's current public link
+ */
+const DEFAULT_REQUEST_BUTTON = {
+    enabled: false,
+    label: '',
+    url: '',
+    openInNewTab: true
+};
+
+export function getRequestButton() {
+    return getConfig().then(config => ({
+        ...DEFAULT_REQUEST_BUTTON,
+        ...(config.requestButton || {})
+    })).catch(error => {
+        console.log('cannot get web config:', error);
+        return DEFAULT_REQUEST_BUTTON;
+    });
+}
+
 export function getPlugins() {
     return getConfig().then(config => {
         if (!config.plugins) {

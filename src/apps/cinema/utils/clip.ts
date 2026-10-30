@@ -75,3 +75,17 @@ export const useIsOnScreen = (ref: RefObject<HTMLElement>, isEnabled: boolean) =
     }, [ isEnabled, ref ]);
     return isOnScreen;
 };
+
+/** Whether the browser tab is showing; clips and music pause while it's in the background. */
+export const usePageVisible = () => {
+    // (Page visibility is supported by every browser Cinema runs in)
+    // eslint-disable-next-line compat/compat
+    const [ isVisible, setIsVisible ] = useState(() => typeof document === 'undefined' || document.visibilityState !== 'hidden');
+    useEffect(() => {
+        // eslint-disable-next-line compat/compat
+        const update = () => setIsVisible(document.visibilityState !== 'hidden');
+        document.addEventListener('visibilitychange', update);
+        return () => document.removeEventListener('visibilitychange', update);
+    }, []);
+    return isVisible;
+};

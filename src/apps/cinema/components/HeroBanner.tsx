@@ -12,7 +12,8 @@ import type { ItemDto } from 'types/base/models/item-dto';
 
 import { useAmbientTint } from '../utils/ambient';
 import { getItemColor } from '../utils/blurhash';
-import { canPlayClip, prefersReducedMotion } from '../utils/clip';
+import { prefersReducedMotion } from '../utils/clip';
+import { hasClipSource } from '../utils/trailer';
 import { getBackdropUrl, getLandscapeUrl, getLogoUrl } from '../utils/images';
 import { formatRuntime, getDisplayTitle, getRemainingTicks } from '../utils/items';
 import { useItemLink } from '../hooks/useItemLink';
@@ -20,6 +21,7 @@ import { useOverlay } from '../hooks/useOverlay';
 import { playItem } from '../utils/actions';
 
 import BackgroundClip from './BackgroundClip';
+import MyListButton from './MyListButton';
 import { FavoriteButton } from './ItemActions';
 import ItemMeta from './ItemMeta';
 
@@ -292,7 +294,7 @@ const HeroBanner: FC<HeroBannerProps> = ({ items, isCompact }) => {
                         <InfoOutlined />
                         {globalize.translate('ButtonInfo')}
                     </Link>
-                    {canPlayClip(item) && (
+                    {hasClipSource(item) && (
                         <button
                             type='button'
                             className='cinema-btn cinema-glass cinema-focusable'
@@ -302,6 +304,7 @@ const HeroBanner: FC<HeroBannerProps> = ({ items, isCompact }) => {
                             {globalize.translate('CinemaPreview')}
                         </button>
                     )}
+                    <MyListButton item={item} />
                     <FavoriteButton item={item} />
                 </div>
 

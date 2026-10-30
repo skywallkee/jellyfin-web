@@ -1,0 +1,13 @@
+// The Sky Cinema logo: the glyph sits dark on the gradient tile (top bar and intro)
+.cinema-brand__mark,
+.cinema-intro__mark {
+    display: grid;
+    flex: none;
+    place-items: center;
+    color: rgba(11, 12, 20, 0.85);
+
+    svg {
+        width: 100%;
+        height: 100%;
+    }
+}

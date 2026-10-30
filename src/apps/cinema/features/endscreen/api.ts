@@ -10,6 +10,8 @@ import { useQuery } from '@tanstack/react-query';
 import { useApi } from 'hooks/useApi';
 import type { ItemDto } from 'types/base/models/item-dto';
 
+import { withoutDisliked } from '../../utils/taste';
+
 const IMAGE_TYPES = [ ImageType.Primary, ImageType.Backdrop, ImageType.Thumb, ImageType.Logo ];
 const FIELDS = [ ItemFields.Overview, ItemFields.Genres, ItemFields.PrimaryImageAspectRatio ];
 const SUGGESTION_COUNT = 10;
@@ -76,12 +78,12 @@ export const useAlsoWatch = (finished?: ItemDto, isEnabled = true) => {
 
             if (genres.length) {
                 const sameGenre = await library.getItems({ ...query, genres }, { signal });
-                const items = (sameGenre.data.Items ?? []) as ItemDto[];
+                const items = withoutDisliked((sameGenre.data.Items ?? []) as ItemDto[]);
                 if (items.length) return { items, isSameGenre: true };
             }
 
             const anything = await library.getItems(query, { signal });
-            return { items: (anything.data.Items ?? []) as ItemDto[], isSameGenre: false };
+            return { items: withoutDisliked((anything.data.Items ?? []) as ItemDto[]), isSameGenre: false };
         },
         enabled: isEnabled && !!api && !!user?.Id && !!finished?.Id,
         // A fresh pick each time something ends

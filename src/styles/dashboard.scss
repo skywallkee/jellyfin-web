@@ -29,16 +29,16 @@ progress::-webkit-progress-bar {
 }
 
 progress::-moz-progress-bar {
-    background-color: #00a4dc;
+    background-color: var(--cinema-accent, #8ab4ff);
 }
 
 progress::-webkit-progress-value {
-    background-color: #00a4dc;
+    background-color: var(--cinema-accent, #8ab4ff);
 }
 
 progress[aria-valuenow]::before {
     border-radius: 0.4em;
-    background-color: #00a4dc;
+    background-color: var(--cinema-accent, #8ab4ff);
 }
 
 .localnav {
@@ -120,7 +120,7 @@ div[data-role=controlgroup] a[data-role=button] + a[data-role=button] {
 }
 
 div[data-role=controlgroup] a.ui-btn-active {
-    background: #00a4dc !important;
+    background: var(--cinema-accent, #8ab4ff) !important;
     color: #292929 !important;
 }
 
@@ -375,7 +375,7 @@ div[data-role=controlgroup] a.ui-btn-active {
 
 .playbackProgress > div {
     z-index: 1000;
-    background-color: #00a4dc;
+    background-color: var(--cinema-accent, #8ab4ff);
 }
 
 .transcodingProgress > div {

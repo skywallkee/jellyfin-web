@@ -1,15 +1,21 @@
 import React, { type FC, useEffect, useState } from 'react';
 
+import { BRAND_NAME } from '../brand';
 import { prefersReducedMotion } from '../utils/clip';
 import { playSound } from '../utils/sounds';
+
+import BrandGlyph from './BrandGlyph';
 
 const SESSION_KEY = 'cinema-intro-shown';
 /** Full length of the intro, matching the animations in the styles. */
 const INTRO_MS = 2300;
 /** When the splash starts dissolving into the app. */
 const OUTRO_AT_MS = 1700;
-/** The name, letter by letter, each with its place in the stagger. */
-const BRAND_LETTERS = [ ...'Jellyfin' ].map((letter, order) => ({ letter, order }));
+/**
+ * The name, letter by letter, each with its place in the stagger. Spaces become non-breaking ones:
+ * a letter box holding only a normal space would collapse to nothing.
+ */
+const BRAND_LETTERS = [ ...BRAND_NAME ].map((letter, order) => ({ letter: letter === ' ' ? ' ' : letter, order }));
 
 const hasPlayedThisVisit = () => {
     try {
@@ -62,7 +68,7 @@ const IntroSplash: FC = () => {
         <div className={phase === 'out' ? 'cinema-intro is-leaving' : 'cinema-intro'} aria-hidden='true'>
             <div className='cinema-intro__flare' />
             <div className='cinema-intro__lockup'>
-                <span className='cinema-intro__mark' />
+                <span className='cinema-intro__mark'><BrandGlyph /></span>
                 <span className='cinema-intro__name'>
                     {BRAND_LETTERS.map(({ letter, order }) => (
                         <span key={order} style={{ '--cinema-i': order } as React.CSSProperties}>{letter}</span>

@@ -12,6 +12,8 @@ import Events from 'utils/events';
 
 import ItemMeta from '../../components/ItemMeta';
 import MediaCard from '../../components/MediaCard';
+import MyListButton from '../../components/MyListButton';
+import RateButtons from '../../components/RateButtons';
 import ScrollTrack from '../../components/ScrollTrack';
 import { useItemLink } from '../../hooks/useItemLink';
 import { useOverlay } from '../../hooks/useOverlay';
@@ -20,6 +22,8 @@ import { useAmbientTint } from '../../utils/ambient';
 import { getItemColor } from '../../utils/blurhash';
 import { getBackdropUrl, getLandscapeUrl, getLogoUrl, isMostlyWide } from '../../utils/images';
 import { formatRuntime, getDisplayTitle, getEpisodeLabel } from '../../utils/items';
+import { useIsSpoiler } from '../../utils/spoilers';
+import { DiaryButton } from '../diary/LogSheet';
 
 import { useAlsoWatch, useFollowingEpisode } from './api';
 
@@ -60,6 +64,15 @@ const useFinishedItem = () => {
     return [ finished, clear ] as const;
 };
 
+/** "How was it?": thumbs up or down for what was just watched, while it's fresh. */
+const RateFinished: FC<{ item: ItemDto }> = ({ item }) => (
+    <div className='cinema-endscreen__rate'>
+        <span>{globalize.translate('CinemaHowWasIt', getDisplayTitle(item))}</span>
+        <RateButtons item={item} />
+        <DiaryButton item={item} showLabel />
+    </div>
+);
+
 /** Shared full-screen frame: artwork behind, close button, keys to leave. */
 const Frame: FC<{ backdropUrl?: string; onClose: () => void; label: string; children: React.ReactNode }> = ({ backdropUrl, onClose, label, children }) => {
     useOverlay(true, onClose);
@@ -84,6 +97,7 @@ const Frame: FC<{ backdropUrl?: string; onClose: () => void; label: string; chil
 const ComingNext: FC<{ finished: ItemDto; next: ItemDto; onClose: () => void }> = ({ finished, next, onClose }) => {
     const { api } = useApi();
     const playRef = useRef<HTMLButtonElement>(null);
+    const isHidden = useIsSpoiler()(next);
     useAmbientTint('modal', getItemColor(next));
 
     // Ready for the remote: Enter plays the next episode
@@ -103,13 +117,14 @@ const ComingNext: FC<{ finished: ItemDto; next: ItemDto; onClose: () => void }> 
                     <p className='cinema-endscreen__eyebrow'>
                         {globalize.translate('CinemaFinishedTitle', [ getEpisodeLabel(finished), finished.Name ].filter(Boolean).join(' · '))}
                     </p>
+                    <RateFinished item={finished} />
                     <h1 className='cinema-endscreen__heading'>{globalize.translate('CinemaComingNext')}</h1>
                     {logoUrl ?
                         <img className='cinema-endscreen__logo' src={logoUrl} alt={getDisplayTitle(next)} /> :
                         <p className='cinema-endscreen__series'>{getDisplayTitle(next)}</p>}
                     <h2 className='cinema-endscreen__title'>{label}</h2>
                     <ItemMeta item={next} />
-                    {next.Overview && <p className='cinema-endscreen__overview'>{next.Overview}</p>}
+                    {next.Overview && !isHidden && <p className='cinema-endscreen__overview'>{next.Overview}</p>}
                     <div className='cinema-actions'>
                         <button
                             ref={playRef}
@@ -126,11 +141,12 @@ const ComingNext: FC<{ finished: ItemDto; next: ItemDto; onClose: () => void }> 
                         <button type='button' className='cinema-btn cinema-glass cinema-focusable' onClick={onClose}>
                             {globalize.translate('CinemaNotNow')}
                         </button>
+                        <MyListButton item={next} />
                     </div>
                 </div>
                 <button
                     type='button'
-                    className='cinema-endscreen__still'
+                    className={isHidden ? 'cinema-endscreen__still is-spoiler' : 'cinema-endscreen__still'}
                     style={stillUrl ? { backgroundImage: `url("${stillUrl}")` } : undefined}
                     onClick={() => {
                         onClose();
@@ -181,6 +197,7 @@ const AlsoWatch: FC<{ finished: ItemDto; onClose: () => void }> = ({ finished, o
                         globalize.translate('CinemaBecauseYouFinished', finishedTitle) :
                         globalize.translate('CinemaSomethingNew')}
                 </p>
+                <RateFinished item={finished} />
                 <h1 className='cinema-endscreen__heading'>{globalize.translate('CinemaAlsoWatch')}</h1>
                 {logoUrl ?
                     <img className='cinema-endscreen__logo' src={logoUrl} alt={getDisplayTitle(featured)} /> :
@@ -206,6 +223,7 @@ const AlsoWatch: FC<{ finished: ItemDto; onClose: () => void }> = ({ finished, o
                         <InfoOutlined />
                         {globalize.translate('ButtonInfo')}
                     </Link>
+                    <MyListButton item={featured} />
                 </div>
             </div>
 

@@ -7,15 +7,17 @@ const LIST_ICON_WIDTH = 36;
 export const DEFAULT_COLOR_SCHEME: ColorSystemOptions = {
     palette: {
         mode: 'dark',
+        // Cinema "Midnight" colours; the Cinema app swaps in the chosen Cinema theme on top
         primary: {
-            main: '#00a4dc'
+            main: '#8ab4ff',
+            contrastText: '#0b0c14'
         },
         secondary: {
-            main: '#00a4dc'
+            main: '#c48bff'
         },
         background: {
-            default: '#101010',
-            paper: '#202020'
+            default: '#07080d',
+            paper: '#161822'
         },
         action: {
             selectedOpacity: 0.2
@@ -27,7 +29,7 @@ export const DEFAULT_COLOR_SCHEME: ColorSystemOptions = {
             main: '#c62828' // Red color
         },
         AppBar: {
-            defaultBg: '#202020'
+            defaultBg: '#07080d'
         }
     }
 };

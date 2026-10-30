@@ -9,7 +9,7 @@ import { getItemPath } from '../utils/actions';
 export const DETAILS_PARAM = 'item';
 
 /** Item types that open in the Cinema details card. Others (albums, collections…) open their full page. */
-export const CINEMA_DETAIL_TYPES = new Set([ 'Movie', 'Series', 'Season', 'Episode', 'Video', 'MusicVideo', 'Trailer', 'Person', 'Genre' ]);
+export const CINEMA_DETAIL_TYPES = new Set([ 'Movie', 'Series', 'Season', 'Episode', 'Video', 'MusicVideo', 'Trailer', 'Person', 'Genre', 'BoxSet' ]);
 
 /** Router state marking a history entry that was pushed to open the details card. */
 export interface DetailsCardState {

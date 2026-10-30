@@ -25,9 +25,12 @@ import { useClipTurn } from '../utils/clip';
 import { getBackdropUrl, getLandscapeUrl } from '../utils/images';
 import { getDisplayTitle, getRemainingTicks } from '../utils/items';
 import { useCinemaSettings } from '../utils/settings';
+import { isSpoiler } from '../utils/spoilers';
 
 import { FavoriteButton, PlayedButton } from './ItemActions';
 import ItemMeta from './ItemMeta';
+import MyListButton from './MyListButton';
+import RateButtons from './RateButtons';
 
 /** How long the pointer rests on a card before the preview opens. */
 const OPEN_DELAY_MS = 650;
@@ -142,7 +145,9 @@ const PreviewPanel: FC<PreviewPanelProps> = ({ target, onEnter, onLeave }) => {
     const title = getDisplayTitle(item);
     const isVideo = item.MediaType === 'Video';
     const isResumable = Boolean(getRemainingTicks(item) && !item.UserData?.Played);
-    const canPlayClip = isVideo && settings.videoPreviews
+    // Spoiler-free: an unwatched episode shows neither its clip nor its description
+    const isHidden = isSpoiler(settings, item);
+    const canPlayClip = isVideo && settings.videoPreviews && !isHidden
         && !window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
     return (
@@ -169,7 +174,7 @@ const PreviewPanel: FC<PreviewPanelProps> = ({ target, onEnter, onLeave }) => {
                     <div className='cinema-preview__subtitle'>{item.Name}</div>
                 )}
                 <ItemMeta item={item} />
-                {item.Overview && <p className='cinema-preview__overview'>{item.Overview}</p>}
+                {item.Overview && !isHidden && <p className='cinema-preview__overview'>{item.Overview}</p>}
                 <div className='cinema-preview__actions'>
                     {(isVideo || item.Type === 'Series' || item.Type === 'Season') && (
                         <button
@@ -182,8 +187,10 @@ const PreviewPanel: FC<PreviewPanelProps> = ({ target, onEnter, onLeave }) => {
                             <PlayArrow />
                         </button>
                     )}
+                    <MyListButton item={item} />
                     <PlayedButton item={item} />
                     <FavoriteButton item={item} />
+                    <RateButtons item={item} />
                     <Link
                         {...itemLink}
                         className='cinema-btn cinema-btn--round cinema-glass cinema-preview__info'

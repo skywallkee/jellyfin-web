@@ -8,13 +8,12 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import React, { Fragment } from 'react';
+import React, { Fragment, useCallback } from 'react';
 
+import { CINEMA_THEMES, type CinemaThemeId, useCinemaSettings } from 'apps/cinema/utils/settings';
 import { appHost } from 'components/apphost';
 import { AppFeature } from 'constants/appFeature';
 import { LayoutMode } from 'constants/layoutMode';
-import { useApi } from 'hooks/useApi';
-import { useThemes } from 'hooks/useThemes';
 import globalize from 'lib/globalize';
 
 import { useScreensavers } from '../hooks/useScreensavers';
@@ -26,9 +25,12 @@ interface DisplayPreferencesProps {
 }
 
 export function DisplayPreferences({ onChange, values }: Readonly<DisplayPreferencesProps>) {
-    const { user } = useApi();
     const { screensavers } = useScreensavers();
-    const { themes } = useThemes();
+    const [ cinemaSettings, updateCinemaSettings ] = useCinemaSettings();
+
+    const onCinemaThemeChange = useCallback((event: SelectChangeEvent<CinemaThemeId>) => {
+        updateCinemaSettings({ theme: event.target.value as CinemaThemeId });
+    }, [ updateCinemaSettings ]);
 
     return (
         <Stack spacing={3}>
@@ -47,9 +49,6 @@ export function DisplayPreferences({ onChange, values }: Readonly<DisplayPrefere
                         value={values.layout}
                     >
                         <MenuItem value={LayoutMode.Auto}>{globalize.translate('Auto')}</MenuItem>
-                        <MenuItem value={LayoutMode.DesktopLegacy}>{globalize.translate('Desktop')}</MenuItem>
-                        <MenuItem value={LayoutMode.MobileLegacy}>{globalize.translate('Mobile')}</MenuItem>
-                        <MenuItem value={LayoutMode.Tv}>{globalize.translate('TV')}</MenuItem>
                         <MenuItem value={LayoutMode.Cinema}>{globalize.translate('LayoutCinema')}</MenuItem>
                         <MenuItem value={LayoutMode.CinemaTv}>{globalize.translate('LayoutCinemaTv')}</MenuItem>
                     </Select>
@@ -60,23 +59,23 @@ export function DisplayPreferences({ onChange, values }: Readonly<DisplayPrefere
                 </FormControl>
             ) }
 
-            { themes.length > 0 && (
-                <FormControl fullWidth>
-                    <InputLabel id='display-settings-theme-label'>{globalize.translate('LabelTheme')}</InputLabel>
-                    <Select
-                        inputProps={{
-                            name: 'theme'
-                        }}
-                        labelId='display-settings-theme-label'
-                        onChange={onChange}
-                        value={values.theme}
-                    >
-                        { ...themes.map(({ id, name }) => (
-                            <MenuItem key={id} value={id}>{name}</MenuItem>
-                        ))}
-                    </Select>
-                </FormControl>
-            ) }
+            { /* Cinema's own themes; the choice applies straight away, like the swatches in Cinema settings */ }
+            <FormControl fullWidth>
+                <InputLabel id='display-settings-theme-label'>{globalize.translate('LabelTheme')}</InputLabel>
+                <Select
+                    aria-describedby='display-settings-theme-description'
+                    labelId='display-settings-theme-label'
+                    onChange={onCinemaThemeChange}
+                    value={cinemaSettings.theme}
+                >
+                    { ...CINEMA_THEMES.map(({ id, labelKey }) => (
+                        <MenuItem key={id} value={id}>{globalize.translate(labelKey)}</MenuItem>
+                    ))}
+                </Select>
+                <FormHelperText id='display-settings-theme-description'>
+                    {globalize.translate('CinemaThemeHelp')}
+                </FormHelperText>
+            </FormControl>
 
             <FormControl fullWidth>
                 <FormControlLabel
@@ -108,24 +107,6 @@ export function DisplayPreferences({ onChange, values }: Readonly<DisplayPrefere
                     {globalize.translate('LabelLocalCustomCss')}
                 </FormHelperText>
             </FormControl>
-
-            { themes.length > 0 && user?.Policy?.IsAdministrator && (
-                <FormControl fullWidth>
-                    <InputLabel id='display-settings-dashboard-theme-label'>{globalize.translate('LabelDashboardTheme')}</InputLabel>
-                    <Select
-                        inputProps={{
-                            name: 'dashboardTheme'
-                        }}
-                        labelId='display-settings-dashboard-theme-label'
-                        onChange={ onChange }
-                        value={ values.dashboardTheme }
-                    >
-                        { ...themes.map(({ id, name }) => (
-                            <MenuItem key={ id } value={ id }>{ name }</MenuItem>
-                        )) }
-                    </Select>
-                </FormControl>
-            ) }
 
             { screensavers.length > 0 && appHost.supports(AppFeature.Screensaver) && (
                 <Fragment>

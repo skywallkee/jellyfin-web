@@ -1,3 +1,4 @@
+import BookmarkBorder from '@mui/icons-material/BookmarkBorder';
 import HomeOutlined from '@mui/icons-material/HomeOutlined';
 import Search from '@mui/icons-material/Search';
 import SettingsOutlined from '@mui/icons-material/SettingsOutlined';
@@ -5,16 +6,21 @@ import classNames from 'classnames';
 import React, { type FC, Suspense, lazy, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
 
-import LibraryIcon from 'apps/modern/components/LibraryIcon';
 import { appRouter } from 'components/router/appRouter';
 import { useApi } from 'hooks/useApi';
 import { useUserViews } from 'hooks/api/useUserViews';
 import globalize from 'lib/globalize';
 import type { ItemDto } from 'types/base/models/item-dto';
 
+import { BRAND_NAME } from '../brand';
 import { usePrefetch } from '../hooks/usePrefetch';
 
+import BrandGlyph from './BrandGlyph';
+import CinemaLibraryIcon from './CinemaLibraryIcon';
+import MobileLibraryMenu from './MobileLibraryMenu';
+import RequestButton from './RequestButton';
 import { SurpriseButton } from './SurpriseMe';
+import WatchTogether from '../features/party/WatchTogether';
 
 // Loaded the first time settings are opened, or in the background once idle
 const SettingsPanel = lazy(() => import(/* webpackChunkName: "cinema-settings-panel" */ './SettingsPanel'));
@@ -44,7 +50,7 @@ const useNavLinks = () => {
             key: view.Id ?? view.Name ?? '',
             label: view.Name ?? '',
             to: appRouter.getRouteUrl(view, { context: view.CollectionType }).substring(1),
-            icon: <LibraryIcon item={view} />,
+            icon: <CinemaLibraryIcon item={view} />,
             isActive: topParentId !== null && view.Id === topParentId,
             view
         }));
@@ -56,6 +62,13 @@ const useNavLinks = () => {
                 to: '/home',
                 icon: <HomeOutlined />,
                 isActive: location.pathname === '/home'
+            },
+            {
+                key: 'mylist',
+                label: globalize.translate('CinemaMyList'),
+                to: '/mylist',
+                icon: <BookmarkBorder />,
+                isActive: location.pathname === '/mylist'
             },
             ...libraries
         ];
@@ -100,7 +113,8 @@ const useSlidingPill = (deps: unknown[]) => {
 
     const moveTo = useCallback((link?: HTMLElement | null) => {
         setPill(previous => {
-            if (!link) return { ...previous, isVisible: false };
+            // No link, or one that's hidden (the phone bar keeps libraries in a menu)
+            if (!link?.offsetWidth) return { ...previous, isVisible: false };
             return {
                 left: link.offsetLeft,
                 width: link.offsetWidth,
@@ -191,19 +205,25 @@ export const CinemaTopNav: FC = () => {
     const { containerRef, handlers, pillStyle } = useSlidingPill([ location.pathname, location.search, links ]);
     const { isSettingsOpen, toggleSettings, closeSettings } = useSettingsPanel();
     const { isScrolled, isHidden } = useScrollState();
+    const isSearchPage = location.pathname === '/search';
+    const isBarHidden = isHidden && !isSettingsOpen;
+    const prefetchByKey = useCallback((key: string) => {
+        const view = links.find(link => link.key === key)?.view;
+        if (view) prefetchLibrary(view);
+    }, [ links, prefetchLibrary ]);
 
-    return (
+    return (<>
         <nav
             className={classNames('cinema-topnav cinema-glass', {
                 'is-scrolled': isScrolled,
                 // Stays put while the settings panel is open; focus inside it brings it back via CSS
-                'is-hidden': isHidden && !isSettingsOpen
+                'is-hidden': isBarHidden
             })}
             aria-label={globalize.translate('HeaderNavigation')}
         >
             <Link className='cinema-brand' to='/home' tabIndex={-1}>
-                <span className='cinema-brand__mark' aria-hidden='true' />
-                Jellyfin
+                <span className='cinema-brand__mark' aria-hidden='true'><BrandGlyph /></span>
+                {BRAND_NAME}
             </Link>
             <div ref={containerRef} className='cinema-topnav__links' {...handlers}>
                 <span className='cinema-navpill' style={pillStyle} aria-hidden='true' />
@@ -222,10 +242,14 @@ export const CinemaTopNav: FC = () => {
                     </Link>
                 ))}
             </div>
+            {/* Phones only: My List and the libraries live behind one button */}
+            <MobileLibraryMenu links={links.slice(1)} isBarHidden={isBarHidden} onPrefetch={prefetchByKey} />
             <span className='cinema-topnav__divider' aria-hidden='true' />
-            <SurpriseButton className='cinema-iconbtn cinema-focusable' />
+            <RequestButton variant='bar' />
+            <SurpriseButton className='cinema-iconbtn cinema-focusable cinema-topnav__surprise' />
+            <WatchTogether className='cinema-iconbtn cinema-focusable' />
             <Link
-                className={classNames('cinema-iconbtn cinema-focusable', { 'is-active': location.pathname === '/search' })}
+                className={classNames('cinema-iconbtn cinema-focusable cinema-topnav__search', { 'is-active': isSearchPage })}
                 to='/search'
                 aria-label={globalize.translate('Search')}
                 title={`${globalize.translate('Search')} (Ctrl+K)`}
@@ -245,7 +269,17 @@ export const CinemaTopNav: FC = () => {
             <UserAvatar />
             {isSettingsOpen && <Suspense fallback={null}><SettingsPanel placement='top' onClose={closeSettings} /></Suspense>}
         </nav>
-    );
+        {/* Phones: search floats above the tab bar's right end instead of taking a tab */}
+        {!isSearchPage && (
+            <Link
+                className={classNames('cinema-search-fab cinema-focusable', { 'is-lowered': isBarHidden })}
+                to='/search'
+                aria-label={globalize.translate('Search')}
+            >
+                <Search />
+            </Link>
+        )}
+    </>);
 };
 
 /** Slim icon rail on the left that expands when focused, used on TVs. */
@@ -280,6 +314,7 @@ export const CinemaRail: FC = () => {
                     <span className='cinema-navlink__label'>{link.label}</span>
                 </Link>
             ))}
+            <RequestButton variant='rail' />
             <SurpriseButton className='cinema-navlink cinema-focusable' showLabel />
             <button
                 type='button'

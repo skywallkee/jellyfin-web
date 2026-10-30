@@ -192,7 +192,7 @@ const useIndicator = (item: ItemDto) => {
                 sx={{
                     [`& .${linearProgressClasses.bar}`]: {
                         borderRadius: 5,
-                        backgroundColor: '#00a4dc'
+                        backgroundColor: 'var(--cinema-accent, #8ab4ff)'
                     }
                 }}
             />

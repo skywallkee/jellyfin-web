@@ -1,7 +1,7 @@
 import type { QueryClient } from '@tanstack/react-query';
 
 /** Queries showing random picks: refreshing them would reshuffle what the user is looking at. */
-const RANDOM_QUERIES = new Set([ 'Spotlight', 'ScreensaverSlides', 'AlsoWatch', 'Surprise' ]);
+const RANDOM_QUERIES = new Set([ 'Spotlight', 'ScreensaverSlides', 'AlsoWatch', 'Surprise', 'SmartRow' ]);
 
 /**
  * Refreshes the user's data after they change something (favourite, watched, Continue Watching),

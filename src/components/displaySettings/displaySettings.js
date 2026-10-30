@@ -93,7 +93,8 @@ function loadForm(context, user, userSettings) {
         context.querySelector('.learnHowToContributeContainer').classList.add('hide');
     }
 
-    context.querySelector('.selectDashboardThemeContainer').classList.toggle('hide', !user.Policy.IsAdministrator);
+    // Jellyfin's own themes are gone (Cinema has its own), so there's no dashboard theme to pick
+    context.querySelector('.selectDashboardThemeContainer').classList.add('hide');
     context.querySelector('.txtSlideshowIntervalContainer').classList.remove('hide');
 
     if (appHost.supports(AppFeature.Screensaver)) {

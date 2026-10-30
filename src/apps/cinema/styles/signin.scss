@@ -1,0 +1,197 @@
+// Sign-in screens (sign in, connect to server, reset password, pick a server):
+// a slow aurora behind a glass card with the Cinema wordmark.
+
+.cinema-app .standalonePage {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: 32px 16px;
+    isolation: isolate;
+
+    // Aurora: soft colour fields drifting behind everything
+    &::before {
+        position: fixed;
+        z-index: -1;
+        background:
+            radial-gradient(40% 50% at 20% 25%, color-mix(in srgb, var(--cinema-accent) 38%, transparent), transparent 70%),
+            radial-gradient(45% 55% at 80% 70%, color-mix(in srgb, var(--cinema-accent-2) 32%, transparent), transparent 70%),
+            radial-gradient(35% 40% at 65% 15%, rgba(255, 255, 255, 0.07), transparent 70%);
+        filter: blur(30px);
+        content: '';
+        inset: -10%;
+        animation: cinema-signin-aurora 28s ease-in-out infinite alternate;
+        pointer-events: none;
+    }
+
+    // Vignette, so the card stays the brightest thing on screen
+    &::after {
+        position: fixed;
+        z-index: -1;
+        background: radial-gradient(ellipse at center, transparent 35%, rgba(var(--cinema-bg-rgb), 0.85));
+        content: '';
+        inset: 0;
+        pointer-events: none;
+    }
+}
+
+@keyframes cinema-signin-aurora {
+    from {
+        transform: translate3d(-3%, -2%, 0) rotate(0deg) scale(1);
+    }
+
+    to {
+        transform: translate3d(3%, 3%, 0) rotate(8deg) scale(1.08);
+    }
+}
+
+// The card: the first block of the sign-in, connect and reset pages
+.cinema-app .standalonePage > .padded-left {
+    box-sizing: border-box;
+    width: min(440px, 100%);
+    margin: 0 auto;
+    // The page-bottom padding the markup asks for would leave a gap inside the card
+    padding: 36px 32px 28px !important;
+    border: 1px solid var(--cinema-glass-edge);
+    border-radius: 28px;
+    background: rgba(18, 20, 30, 0.62);
+    box-shadow:
+        0 30px 80px rgba(0, 0, 0, 0.55),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(28px) saturate(1.4);
+    animation: cinema-signin-rise 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+
+    // Logo with the wordmark under it, above the heading
+    &::before {
+        display: block;
+        width: fit-content;
+        margin: 0 auto 18px;
+        padding-top: 64px;
+        color: var(--cinema-accent);
+        background: url('../../../assets/img/sky-cinema.svg') top center / 52px no-repeat;
+        filter: drop-shadow(0 6px 22px var(--cinema-glow-soft));
+        font-size: 0.85rem;
+        font-weight: 800;
+        letter-spacing: 0.42em;
+        text-indent: 0.42em;
+        content: 'SKY CINEMA';
+    }
+
+    form,
+    .readOnlyContent {
+        width: 100%;
+        max-width: none;
+        margin: 0;
+    }
+
+    // The layout helpers inside add their own side padding; the card already has it
+    .padded-left,
+    .padded-right {
+        padding-right: 0;
+        padding-left: 0;
+    }
+
+    h1,
+    h2,
+    .sectionTitle {
+        margin: 0 0 22px;
+        font-size: 1.7rem;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        text-align: center;
+    }
+
+    .inputContainer {
+        margin-bottom: 16px;
+    }
+
+    .emby-input {
+        padding: 12px 14px;
+        font-size: 1rem;
+    }
+
+    .checkboxContainer {
+        margin: 4px 0 20px;
+    }
+
+    .emby-button.raised {
+        margin: 0;
+        padding: 12px 18px;
+    }
+
+    // Sign in / Connect: the one bright button
+    .button-submit {
+        font-size: 1rem;
+    }
+
+    // Everything else is quieter: outlined, a little smaller
+    .emby-button.raised:not(.button-submit) {
+        border: 1px solid var(--cinema-glass-edge);
+        color: var(--cinema-ink-2);
+        font-size: 0.9rem;
+        background: transparent;
+
+        &:hover,
+        &:focus-visible {
+            color: var(--cinema-ink);
+            background: var(--cinema-glass);
+        }
+    }
+
+    .readOnlyContent {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 12px !important;
+        margin-bottom: 0 !important;
+    }
+
+    // The server's sign-in message, if it has one; nothing when it doesn't
+    .loginDisclaimerContainer {
+        margin-top: 12px;
+        color: var(--cinema-ink-2);
+        font-size: 0.85rem;
+
+        &:has(.loginDisclaimer:empty) {
+            display: none;
+        }
+    }
+
+    // People to pick from (shown when accounts aren't hidden): round faces in a row
+    .visualLoginForm h1 {
+        margin-top: 0 !important;
+    }
+
+    #divUsers {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: center;
+    }
+}
+
+@keyframes cinema-signin-rise {
+    from {
+        opacity: 0;
+        transform: translateY(24px) scale(0.98);
+    }
+}
+
+// Phones: the card fills the width and sits a little higher
+@media (max-width: 600px) {
+    .cinema-app .standalonePage > .padded-left {
+        padding: 28px 20px 22px !important;
+        border-radius: 22px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cinema-app .standalonePage::before,
+    .cinema-app .standalonePage > .padded-left {
+        animation: none;
+    }
+}

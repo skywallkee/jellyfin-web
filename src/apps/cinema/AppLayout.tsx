@@ -10,6 +10,7 @@ import { useApi } from 'hooks/useApi';
 import { LibraryProvider } from 'apps/modern/features/libraries/hooks/useLibrary';
 
 import AmbientLayer from './components/AmbientLayer';
+import CinemaThemeRoot from './components/CinemaThemeRoot';
 import { CinemaRail, CinemaTopNav } from './components/CinemaNav';
 import { HoverPreviewProvider } from './components/HoverPreview';
 import IntroSplash from './components/IntroSplash';
@@ -20,6 +21,8 @@ import { SurpriseMe } from './components/SurpriseMe';
 import SettingsBackBar, { SETTINGS_SUBPAGES } from './components/SettingsBackBar';
 import DetailsModal from './features/details/DetailsModal';
 import EndScreen from './features/endscreen/EndScreen';
+import { useJoinFromInvite } from './features/party/WatchTogether';
+import PlayerExtras from './features/player/PlayerExtras';
 import { useCursorGlow } from './hooks/useCursorGlow';
 import { ItemLinkProvider } from './hooks/useItemLink';
 import { useIdlePrefetch, useScrollingFlag } from './hooks/usePerformance';
@@ -36,7 +39,13 @@ import './styles/player.scss';
 import './styles/wow.scss';
 import './styles/delight.scss';
 import './styles/endscreen.scss';
+import './styles/features.scss';
+import './styles/tonight.scss';
+import './styles/diary.scss';
 import './styles/people-genres.scss';
+import './styles/signin.scss';
+import './styles/brand.scss';
+import './styles/overlays.scss';
 import './styles/perf.scss';
 
 /** Pages that draw their own full-bleed artwork under the nav. */
@@ -55,6 +64,8 @@ export const Component = () => {
     useScrollingFlag();
     useIdlePrefetch(Boolean(user));
     setSoundsOnByDefault(isTv);
+    // Opening a watch-party invite link joins that party
+    useJoinFromInvite();
 
     // New pages open at the top; Back (a "POP") keeps the browser's restored scroll position
     const navigationType = useNavigationType();
@@ -74,50 +85,53 @@ export const Component = () => {
     const isVideo = location.pathname === '/video';
 
     return (
-        <LibraryProvider>
-            <div
-                ref={appRef}
-                className={classNames('cinema-app', {
-                    'cinema-app--tv': isTv,
-                    'cinema-app--solid': settings.reduceTransparency,
-                    // The video plays underneath the app, so the app turns see-through while it does
-                    'cinema-app--video': isVideo
-                })}
-                data-cinema-theme={settings.theme}
-            >
-                <AmbientLayer />
-                <ItemLinkProvider>
-                    <HoverPreviewProvider>
-                        {showNav && (isTv ? <CinemaRail /> : <CinemaTopNav />)}
+        <CinemaThemeRoot theme={settings.theme} isSolid={settings.reduceTransparency}>
+            <LibraryProvider>
+                <div
+                    ref={appRef}
+                    className={classNames('cinema-app', {
+                        'cinema-app--tv': isTv,
+                        'cinema-app--solid': settings.reduceTransparency,
+                        // The video plays underneath the app, so the app turns see-through while it does
+                        'cinema-app--video': isVideo
+                    })}
+                    data-cinema-theme={settings.theme}
+                >
+                    <AmbientLayer />
+                    <ItemLinkProvider>
+                        <HoverPreviewProvider>
+                            {showNav && (isTv ? <CinemaRail /> : <CinemaTopNav />)}
 
-                        <main
-                            className={classNames('cinema-main', {
-                                'cinema-main--offset': showNav && !isFullBleed,
-                                'cinema-main--with-backbar': hasBackBar
-                            })}
-                        >
-                            {hasBackBar && <SettingsBackBar />}
-                            <AppBody>
-                                {/* Keyed by path so each screen plays its entrance; opening a details card (?item=) doesn't */}
-                                <div key={location.pathname} className='cinema-page'>
-                                    <Outlet />
-                                </div>
-                            </AppBody>
-                        </main>
-                        <DetailsModal />
-                        {user && <QuickSearch />}
-                        {user && <SurpriseMe />}
-                        {user && !isTv && <ShortcutsOverlay />}
-                    </HoverPreviewProvider>
-                    {/* Outside the hover previews: they'd only open underneath it */}
-                    {user && <EndScreen />}
-                </ItemLinkProvider>
-                {user && <Screensaver />}
-                {user && <IntroSplash />}
+                            <main
+                                className={classNames('cinema-main', {
+                                    'cinema-main--offset': showNav && !isFullBleed,
+                                    'cinema-main--with-backbar': hasBackBar
+                                })}
+                            >
+                                {hasBackBar && <SettingsBackBar />}
+                                <AppBody>
+                                    {/* Keyed by path so each screen plays its entrance; opening a details card (?item=) doesn't */}
+                                    <div key={location.pathname} className='cinema-page'>
+                                        <Outlet />
+                                    </div>
+                                </AppBody>
+                            </main>
+                            <DetailsModal />
+                            {user && <QuickSearch />}
+                            {user && <SurpriseMe />}
+                            {user && !isTv && <ShortcutsOverlay />}
+                        </HoverPreviewProvider>
+                        {isVideo && user && <PlayerExtras />}
+                        {/* Outside the hover previews: they'd only open underneath it */}
+                        {user && <EndScreen />}
+                    </ItemLinkProvider>
+                    {user && <Screensaver />}
+                    {user && <IntroSplash />}
 
-                <ThemeCss />
-                <CustomCss />
-            </div>
-        </LibraryProvider>
+                    <ThemeCss />
+                    <CustomCss />
+                </div>
+            </LibraryProvider>
+        </CinemaThemeRoot>
     );
 };

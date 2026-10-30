@@ -169,9 +169,53 @@ export const createCinemaDashboardTheme = (palette: CinemaPalette, isSolid: bool
                     }
                 }
             },
+            // Dropdown lists and pop-up menus: a glass panel with rounded, accent-tinted choices
             MuiMenu: {
                 styleOverrides: {
-                    paper: { borderRadius: 14 }
+                    paper: {
+                        marginTop: 6,
+                        borderRadius: 16,
+                        background: isSolid ? 'rgb(20, 22, 32)' : 'rgba(20, 22, 32, 0.86)',
+                        backdropFilter: blur,
+                        boxShadow: '0 24px 60px rgba(0, 0, 0, 0.55)'
+                    },
+                    list: { padding: 6 }
+                }
+            },
+            MuiMenuItem: {
+                styleOverrides: {
+                    root: {
+                        minHeight: 40,
+                        borderRadius: 10,
+                        fontSize: '0.95rem',
+                        '&:hover': { background: 'rgba(255, 255, 255, 0.07)' },
+                        '&.Mui-selected, &.Mui-selected.Mui-focusVisible': {
+                            color: palette.accent,
+                            fontWeight: 600,
+                            background: alpha(palette.accent, 0.14)
+                        },
+                        '&.Mui-selected:hover': { background: alpha(palette.accent, 0.2) },
+                        '&.Mui-focusVisible': { background: 'rgba(255, 255, 255, 0.09)' }
+                    }
+                }
+            },
+            MuiAutocomplete: {
+                styleOverrides: {
+                    paper: {
+                        borderRadius: 16,
+                        background: isSolid ? 'rgb(20, 22, 32)' : 'rgba(20, 22, 32, 0.86)'
+                    },
+                    option: { borderRadius: 10, margin: '0 6px' }
+                }
+            },
+            MuiSnackbarContent: {
+                styleOverrides: {
+                    root: {
+                        borderRadius: 14,
+                        color: INK,
+                        background: isSolid ? 'rgb(20, 22, 32)' : 'rgba(20, 22, 32, 0.9)',
+                        border: `1px solid ${GLASS_EDGE}`
+                    }
                 }
             },
             MuiTableCell: {
@@ -217,3 +261,6 @@ export const createCinemaDashboardTheme = (palette: CinemaPalette, isSolid: bool
         }
     }));
 };
+
+/** The same theme, used for the main Cinema app's Material UI controls (settings pages, menus). */
+export const createCinemaMuiTheme = createCinemaDashboardTheme;

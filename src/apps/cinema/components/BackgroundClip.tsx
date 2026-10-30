@@ -7,8 +7,11 @@ import { useApi } from 'hooks/useApi';
 import globalize from 'lib/globalize';
 import type { ItemDto } from 'types/base/models/item-dto';
 
-import { canPlayClip, getClipUrl, prefersReducedMotion, useClipTurn, useIsOnScreen } from '../utils/clip';
+import { getClipUrl, prefersReducedMotion, useClipTurn, useIsOnScreen, usePageVisible } from '../utils/clip';
+import { type ClipSource, hasClipSource, useClipSource } from '../utils/trailer';
 import { useCinemaSettings } from '../utils/settings';
+
+import YouTubeFrame from './YouTubeFrame';
 
 /** How long a clip plays before fading back to the artwork. */
 const MAX_PLAY_MS = 45_000;
@@ -29,21 +32,31 @@ interface BackgroundClipProps {
     onEnded?: () => void;
 }
 
+/** What to play, and whether playing is wanted at all (previews on, motion allowed, or theater). */
+const useClipPlan = (item: ItemDto, isTheater: boolean | undefined) => {
+    const [ settings ] = useCinemaSettings();
+    // Asking for theater mode is an explicit choice, so it plays even with previews turned off
+    const isWanted = hasClipSource(item) && (Boolean(isTheater) || (settings.videoPreviews && !prefersReducedMotion()));
+    const source: ClipSource | undefined = useClipSource(item, isWanted);
+    return { source, isEnabled: isWanted && Boolean(source) };
+};
+
 /**
- * A muted clip of the title that fades in over its artwork after a moment, Netflix-style,
- * with a button to turn the sound on. Off when video previews are disabled or motion is reduced.
+ * A muted clip that fades in over the title's artwork after a moment, Netflix-style, with a button
+ * to turn the sound on: the real trailer when there is one (a trailer file or a YouTube link),
+ * otherwise a clip from the title itself. Off when video previews are disabled or motion is reduced.
  */
 const BackgroundClip: FC<BackgroundClipProps> = ({ item, delayMs, className, onPlayingChange, isTheater, onEnded }) => {
     const { api } = useApi();
-    const [ settings ] = useCinemaSettings();
     const videoRef = useRef<HTMLVideoElement>(null);
     const [ isStarted, setIsStarted ] = useState(false);
     const [ isPlaying, setIsPlaying ] = useState(false);
     const [ isMuted, setIsMuted ] = useState(isMutedPreference);
     // Set once the clip has had its time; it then stays paused (unless watched full screen)
     const [ isExpired, setIsExpired ] = useState(false);
-    // Asking for theater mode is an explicit choice, so it plays even with previews turned off
-    const isEnabled = canPlayClip(item) && (isTheater || (settings.videoPreviews && !prefersReducedMotion()));
+    const { source, isEnabled } = useClipPlan(item, isTheater);
+    const isPageVisible = usePageVisible();
+    const muted = isTheater ? false : isMuted;
     const wrapperRef = useRef<HTMLDivElement>(null);
     // Decoding video is heavy: only play while it's this clip's turn and it's actually on screen
     const isTurn = useClipTurn(isEnabled && isStarted);
@@ -102,7 +115,7 @@ const BackgroundClip: FC<BackgroundClipProps> = ({ item, delayMs, className, onP
         return () => document.removeEventListener('visibilitychange', sync);
     }, [ shouldRun, isStarted ]);
 
-    if (!api || !isEnabled || !isStarted) return null;
+    if (!api || !isEnabled || !isStarted || !source) return null;
 
     const toggleMute = () => {
         isMutedPreference = !isMuted;
@@ -113,21 +126,30 @@ const BackgroundClip: FC<BackgroundClipProps> = ({ item, delayMs, className, onP
         <>
             {/* The wrapper carries the same dark gradient as the artwork, so text stays readable */}
             <div ref={wrapperRef} className={classNames('cinema-clip', className, { 'is-playing': isPlaying })} aria-hidden='true'>
-                {/* A short ambient preview; captions belong to the real player */}
-                {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-                <video
-                    ref={videoRef}
-                    src={getClipUrl(api, item)}
-                    muted={isTheater ? false : isMuted}
-                    playsInline
-                    preload='auto'
-                    onPlaying={() => setIsPlaying(true)}
-                    onEnded={() => {
-                        setIsPlaying(false);
-                        onEnded?.();
-                    }}
-                    onError={() => setIsPlaying(false)}
-                />
+                {source.kind === 'youtube' ?
+                    <YouTubeFrame
+                        videoId={source.videoId}
+                        shouldRun={shouldRun && isPageVisible}
+                        isMuted={muted}
+                        onPlayingChange={setIsPlaying}
+                        onEnded={onEnded}
+                    /> :
+                    // A short ambient preview; captions belong to the real player
+                    // eslint-disable-next-line jsx-a11y/media-has-caption
+                    <video
+                        ref={videoRef}
+                        // Trailers play from the start; a clip of the title starts past its opening
+                        src={getClipUrl(api, source.item, source.isTrailer ? 0 : undefined)}
+                        muted={muted}
+                        playsInline
+                        preload='auto'
+                        onPlaying={() => setIsPlaying(true)}
+                        onEnded={() => {
+                            setIsPlaying(false);
+                            onEnded?.();
+                        }}
+                        onError={() => setIsPlaying(false)}
+                    />}
             </div>
             <button
                 type='button'

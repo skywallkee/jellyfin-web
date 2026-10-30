@@ -128,7 +128,7 @@ export const useLibrarySpotlight = (parentId: string, itemTypes: BaseItemKind[])
                 sortBy: [ ItemSortBy.Random ],
                 // Extra, since only titles with wide artwork are used
                 limit: SPOTLIGHT_COUNT * 3,
-                fields: [ ItemFields.Overview, ItemFields.Genres, ItemFields.PrimaryImageAspectRatio ],
+                fields: [ ItemFields.Overview, ItemFields.Genres, ItemFields.PrimaryImageAspectRatio, ItemFields.RemoteTrailers ],
                 enableImageTypes: [ ImageType.Primary, ImageType.Backdrop, ImageType.Thumb, ImageType.Logo ],
                 imageTypeLimit: 1,
                 enableUserData: true

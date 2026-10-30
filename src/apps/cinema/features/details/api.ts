@@ -7,6 +7,8 @@ import { useQuery } from '@tanstack/react-query';
 import { useApi } from 'hooks/useApi';
 import type { ItemDto } from 'types/base/models/item-dto';
 
+import { withoutDisliked } from '../../utils/taste';
+
 const IMAGE_TYPES = [ ImageType.Primary, ImageType.Backdrop, ImageType.Thumb, ImageType.Logo ];
 
 export const useSeasons = (seriesId?: string | null) => {
@@ -58,7 +60,7 @@ export const useSimilarItems = (itemId?: string | null) => {
                 limit: 16,
                 fields: [ ItemFields.PrimaryImageAspectRatio ]
             }, { signal });
-            return (response.data.Items ?? []) as ItemDto[];
+            return withoutDisliked((response.data.Items ?? []) as ItemDto[]);
         },
         enabled: !!api && !!user?.Id && !!itemId
     });

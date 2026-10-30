@@ -2,6 +2,8 @@ import { useEffect } from 'react';
 
 import viewManager from 'components/viewManager/viewManager';
 
+import { BRAND_NAME } from '../brand';
+
 /**
  * Hides the previous legacy (HTML/controller) page when a Cinema page opens, and sets the browser
  * tab's title for the page.
@@ -17,6 +19,6 @@ export const useHideLegacyView = (isEnabled = true, title?: string | null) => {
     }, [ isEnabled ]);
 
     useEffect(() => {
-        if (isEnabled) document.title = title || 'Jellyfin';
+        if (isEnabled) document.title = title || BRAND_NAME;
     }, [ isEnabled, title ]);
 };

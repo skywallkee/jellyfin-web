@@ -7,6 +7,9 @@ import DownloadOutlined from '@mui/icons-material/DownloadOutlined';
 import EditNoteOutlined from '@mui/icons-material/EditNoteOutlined';
 import ExitToApp from '@mui/icons-material/ExitToApp';
 import HomeOutlined from '@mui/icons-material/HomeOutlined';
+import EventOutlined from '@mui/icons-material/EventOutlined';
+import MenuBookOutlined from '@mui/icons-material/MenuBookOutlined';
+import HistoryOutlined from '@mui/icons-material/HistoryOutlined';
 import InsightsOutlined from '@mui/icons-material/InsightsOutlined';
 import Logout from '@mui/icons-material/Logout';
 import PhonelinkLockOutlined from '@mui/icons-material/PhonelinkLockOutlined';
@@ -89,6 +92,9 @@ const Settings: FC = () => {
 
     const preferenceTiles: (Tile | false)[] = [
         { key: 'stats', labelKey: 'CinemaYourCinema', icon: <InsightsOutlined />, to: '/cinemastats' },
+        { key: 'history', labelKey: 'CinemaHistory', icon: <HistoryOutlined />, to: '/history' },
+        { key: 'comingsoon', labelKey: 'CinemaComingSoon', icon: <EventOutlined />, to: '/comingsoon' },
+        { key: 'diary', labelKey: 'CinemaDiary', icon: <MenuBookOutlined />, to: '/diary' },
         { key: 'profile', labelKey: 'Profile', icon: <AccountCircleOutlined />, to: `/userprofile${query}` },
         { key: 'display', labelKey: 'Display', icon: <DesktopWindowsOutlined />, to: `/mypreferencesdisplay${query}` },
         { key: 'home', labelKey: 'Home', icon: <HomeOutlined />, to: `/mypreferenceshome${query}` },

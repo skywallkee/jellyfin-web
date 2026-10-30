@@ -4,6 +4,11 @@ declare module '*.png' {
     export = value;
 }
 
+declare module '*.svg' {
+    const value: string;
+    export default value;
+}
+
 declare module '*.scss' {
     // style imports are handled by the bundler
     const value: string;

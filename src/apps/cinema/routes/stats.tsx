@@ -8,6 +8,7 @@ import { useApi } from 'hooks/useApi';
 import globalize from 'lib/globalize';
 
 import MediaRow from '../components/MediaRow';
+import AchievementBadges from '../features/stats/AchievementBadges';
 import { useCinemaStats } from '../features/stats/api';
 import { useHideLegacyView } from '../hooks/useHideLegacyView';
 import { prefersReducedMotion } from '../utils/clip';
@@ -118,6 +119,8 @@ const Stats: FC = () => {
                             </ol>
                         </section>
                     )}
+
+                    {stats.facts && <AchievementBadges facts={stats.facts} />}
 
                     <div className='cinema-rows'>
                         <MediaRow

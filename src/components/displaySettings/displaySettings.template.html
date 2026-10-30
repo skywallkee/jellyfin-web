@@ -169,9 +169,6 @@
     <div class="selectContainer fldDisplayMode hide">
         <select is="emby-select" class="selectLayout" label="${LabelDisplayMode}">
             <option value="">${Auto}</option>
-            <option value="desktop-legacy">${Desktop}</option>
-            <option value="mobile-legacy">${Mobile}</option>
-            <option value="tv">${TV}</option>
             <option value="cinema">${LayoutCinema}</option>
             <option value="cinema-tv">${LayoutCinemaTv}</option>
         </select>
@@ -179,7 +176,7 @@
         <div class="fieldDescription">${LabelPleaseRestart}</div>
     </div>
 
-    <div class="selectContainer">
+    <div class="selectContainer hide">
         <select id="selectTheme" is="emby-select" label="${LabelTheme}"></select>
     </div>
 

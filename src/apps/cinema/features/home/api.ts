@@ -68,7 +68,33 @@ export interface WatchedSeed {
     /** The movie or series to find similar titles for. */
     id: string;
     name: string;
+    /** Seeded by a thumbs up rather than by watching. */
+    isLiked?: boolean;
 }
+
+/** The titles the user most recently gave a thumbs up, to seed "Because you liked…" rows. */
+export const useLikedSeeds = (count = 1) => {
+    const { api, user } = useApi();
+    return useQuery({
+        queryKey: [ 'User', user?.Id, 'Cinema', 'LikedSeeds', count ],
+        queryFn: async ({ signal }) => {
+            const response = await getLibraryApi(api!).getItems({
+                userId: user?.Id,
+                recursive: true,
+                includeItemTypes: [ BaseItemKind.Movie, BaseItemKind.Series ],
+                filters: [ ItemFilter.Likes ],
+                sortBy: [ ItemSortBy.DatePlayed, ItemSortBy.DateCreated ],
+                sortOrder: [ SortOrder.Descending ],
+                limit: count,
+                enableImages: false
+            }, { signal });
+            return ((response.data.Items ?? []) as ItemDto[])
+                .filter(item => item.Id && item.Name)
+                .map(item => ({ id: item.Id!, name: item.Name!, isLiked: true }));
+        },
+        enabled: !!api && !!user?.Id
+    });
+};
 
 /**
  * The last few distinct titles the user watched (episodes count as their series),

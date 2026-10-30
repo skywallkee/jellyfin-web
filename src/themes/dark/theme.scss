@@ -3,28 +3,28 @@
 
 /* Card background color variants */
 .defaultCardBackground1 {
-    background-color: #00455c;
+    background-color: #1b2440;
 }
 
 .defaultCardBackground2 {
-    background-color: #44bae1;
+    background-color: #2a2148;
 }
 
 .defaultCardBackground3 {
-    background-color: #00a4db;
+    background-color: #1f2f4a;
 }
 
 .defaultCardBackground4 {
-    background-color: #1c4c5c;
+    background-color: #2c1f3d;
 }
 
 .defaultCardBackground5 {
-    background-color: #007ea8;
+    background-color: #232a45;
 }
 
 /* Detail ribbon on item details pages */
 .detailRibbon {
-    background: rgba(var(--jf-palette-background-paperChannel, 32 32 32) / 0.8);
+    background: rgba(var(--jf-palette-background-paperChannel, 22 24 34) / 0.8);
 
     .layout-tv & {
         background: none;

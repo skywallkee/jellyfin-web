@@ -3,7 +3,8 @@ import { CollectionType } from '@jellyfin/sdk/lib/generated-client/models/collec
 import { ImageType } from '@jellyfin/sdk/lib/generated-client/models/image-type';
 import { ItemFields } from '@jellyfin/sdk/lib/generated-client/models/item-fields';
 import { MediaType } from '@jellyfin/sdk/lib/generated-client/models/media-type';
-import React, { type FC, useMemo } from 'react';
+import AutoAwesome from '@mui/icons-material/AutoAwesome';
+import React, { type CSSProperties, type FC, Suspense, lazy, useMemo, useState } from 'react';
 
 import { useLatestMedia } from 'apps/legacy/features/libraries/api/useLatestMedia';
 import { useNextUp } from 'apps/legacy/features/libraries/api/useNextUp';
@@ -16,7 +17,15 @@ import type { ItemDto } from 'types/base/models/item-dto';
 
 import HeroBanner from '../components/HeroBanner';
 import LazySection from '../components/LazySection';
-import { type WatchedSeed, useFavorites, useRecentlyWatched, useTopRated } from '../features/home/api';
+import { useCollectionsInProgress } from '../features/collections/api';
+import { getAirLabel, useUpcomingEpisodes } from '../features/comingsoon/api';
+import { type WatchedSeed, useFavorites, useLikedSeeds, useRecentlyWatched, useTopRated } from '../features/home/api';
+import type { MoodKey } from '../features/mood/api';
+import { MOODS, getMoodLabel } from '../features/mood/moods';
+import { useMyListItems } from '../features/mylist/api';
+import { type SmartRow, describeSmartRow, useSmartRowItems, useSmartRows } from '../features/smartrows/api';
+import SmartRowsEditor from '../features/smartrows/SmartRowsEditor';
+import SeasonalRow, { SeasonalEffects } from '../features/seasonal/SeasonalRow';
 import { useSimilarItems } from '../features/details/api';
 import { useHideLegacyView } from '../hooks/useHideLegacyView';
 import type { CardShape } from '../components/MediaCard';
@@ -24,9 +33,12 @@ import MediaRow from '../components/MediaRow';
 import { hasBackdrop, isMostlyWide } from '../utils/images';
 import { formatRuntime, getRemainingTicks } from '../utils/items';
 
+// The picker loads the first time it's opened
+const MoodPicker = lazy(() => import(/* webpackChunkName: "cinema-mood" */ '../features/mood/MoodPicker'));
+
 const ROW_LIMIT = 16;
 const HERO_LIMIT = 5;
-const FIELDS = [ ItemFields.Overview, ItemFields.Genres, ItemFields.PrimaryImageAspectRatio, ItemFields.DateCreated ];
+const FIELDS = [ ItemFields.Overview, ItemFields.Genres, ItemFields.PrimaryImageAspectRatio, ItemFields.DateCreated, ItemFields.RemoteTrailers ];
 const IMAGE_TYPES = [ ImageType.Primary, ImageType.Backdrop, ImageType.Thumb, ImageType.Logo ];
 
 /** Libraries that get a "Recently added" row, and the card shape each uses. */
@@ -63,12 +75,33 @@ const Greeting: FC<{ name?: string | null }> = ({ name }) => (
     </p>
 );
 
+/** "What's the vibe tonight?": a mood opens the picker with it chosen. */
+const MoodStrip: FC<{ onPick: (mood: MoodKey) => void }> = ({ onPick }) => (
+    <section className='cinema-moodstrip' aria-label={globalize.translate('CinemaMoodTitle')}>
+        <h2 className='cinema-moodstrip__title'>{globalize.translate('CinemaMoodStrip')}</h2>
+        <div className='cinema-moodstrip__chips'>
+            {MOODS.map(option => (
+                <button
+                    key={option.key}
+                    type='button'
+                    className='cinema-moodstrip__chip cinema-focusable'
+                    style={{ '--cinema-hue': option.hue } as CSSProperties}
+                    onClick={() => onPick(option.key)}
+                >
+                    {option.icon}
+                    {getMoodLabel(option.key)}
+                </button>
+            ))}
+        </div>
+    </section>
+);
+
 /** "Because you watched X": titles similar to something the user watched recently. */
 const BecauseRow: FC<{ seed: WatchedSeed }> = ({ seed }) => {
     const { data, isPending } = useSimilarItems(seed.id);
     return (
         <MediaRow
-            title={globalize.translate('CinemaBecauseYouWatched', seed.name)}
+            title={globalize.translate(seed.isLiked ? 'CinemaBecauseYouLiked' : 'CinemaBecauseYouWatched', seed.name)}
             items={data}
             isPending={isPending}
             shape={isMostlyWide(data) ? 'landscape' : 'poster'}
@@ -82,6 +115,76 @@ const BecauseSlot: FC<{ index: number }> = ({ index }) => {
     const { data: seeds } = useRecentlyWatched();
     const seed = seeds?.[index];
     return seed ? <BecauseRow seed={seed} /> : null;
+};
+
+/** "Because you liked X", from the latest thumbs up. */
+const LikedRow: FC = () => {
+    const { data: seeds } = useLikedSeeds();
+    const seed = seeds?.[0];
+    return seed ? <BecauseRow seed={seed} /> : null;
+};
+
+/** The user's watchlist, newest first. */
+const MyListRow: FC = () => {
+    const { data } = useMyListItems();
+    return (
+        <MediaRow
+            title={globalize.translate('CinemaMyList')}
+            items={data}
+            shape={isMostlyWide(data) ? 'landscape' : 'poster'}
+            getSubtitle={getYear}
+            seeAllTo='/mylist'
+        />
+    );
+};
+
+const getAirSubtitle = (episode: ItemDto) => [ getAirLabel(episode.PremiereDate), episode.Name ].filter(Boolean).join(' · ');
+
+/** New episodes of the user's shows, airing soon. */
+const ComingSoonRow: FC = () => {
+    const { data } = useUpcomingEpisodes(16);
+    return (
+        <MediaRow
+            title={globalize.translate('CinemaComingSoon')}
+            items={data}
+            shape='landscape'
+            getSubtitle={getAirSubtitle}
+            seeAllTo='/comingsoon'
+        />
+    );
+};
+
+const getCollectionSubtitle = (collection: ItemDto) => {
+    const total = collection.ChildCount ?? 0;
+    return globalize.translate('CinemaWatchedOf', total - (collection.UserData?.UnplayedItemCount ?? 0), total);
+};
+
+/** Sagas and franchises started but not finished. */
+const CollectionsRow: FC = () => {
+    const { data } = useCollectionsInProgress();
+    return (
+        <MediaRow
+            title={globalize.translate('CinemaFinishCollections')}
+            items={data}
+            shape='poster'
+            showProgress
+            getSubtitle={getCollectionSubtitle}
+        />
+    );
+};
+
+/** A row defined by the user's own rules. */
+const SmartRowView: FC<{ row: SmartRow }> = ({ row }) => {
+    const { data, isPending } = useSmartRowItems(row);
+    return (
+        <MediaRow
+            title={describeSmartRow(row)}
+            items={data}
+            isPending={isPending}
+            shape={isMostlyWide(data) ? 'landscape' : 'poster'}
+            getSubtitle={getYear}
+        />
+    );
 };
 
 /** Top 10, only worth showing once there's a decent number of rated titles. */
@@ -130,6 +233,9 @@ const LatestRow: FC<{ library: ItemDto }> = ({ library }) => {
 const Home: FC = () => {
     useHideLegacyView(true, globalize.translate('Home'));
     const { user } = useApi();
+    const { rows: smartRows } = useSmartRows();
+    const [ isEditingRows, setIsEditingRows ] = useState(false);
+    const [ moodPick, setMoodPick ] = useState<MoodKey>();
     const commonParams = {
         fields: FIELDS,
         enableImageTypes: IMAGE_TYPES,
@@ -177,12 +283,14 @@ const Home: FC = () => {
 
     return (
         <div className='cinema-home'>
+            <SeasonalEffects />
             {heroItems.length > 0 ?
                 <HeroBanner items={heroItems} /> :
                 <div style={{ height: 'var(--cinema-nav-offset)' }} />}
 
             <div className='cinema-rows'>
                 <Greeting name={user?.Name} />
+                <MoodStrip onPick={setMoodPick} />
                 <MediaRow
                     title={globalize.translate('HeaderContinueWatching')}
                     items={resumeItems}
@@ -199,9 +307,25 @@ const Home: FC = () => {
                     shape='landscape'
                     getSubtitle={getEpisodeName}
                 />
+                <SeasonalRow />
+                <MyListRow />
                 {/* Everything below loads as it comes near the screen, or in the background once the page has settled */}
                 <LazySection hasPlaceholder={false}>
                     <TopTenRow />
+                </LazySection>
+                <LazySection hasPlaceholder={false}>
+                    <LikedRow />
+                </LazySection>
+                {smartRows.map(row => (
+                    <LazySection key={row.id}>
+                        <SmartRowView row={row} />
+                    </LazySection>
+                ))}
+                <LazySection hasPlaceholder={false}>
+                    <CollectionsRow />
+                </LazySection>
+                <LazySection hasPlaceholder={false}>
+                    <ComingSoonRow />
                 </LazySection>
                 {libraries.map((library, i) => (
                     <React.Fragment key={library.Id}>
@@ -217,7 +341,20 @@ const Home: FC = () => {
                 <LazySection hasPlaceholder={false}>
                     <FavoritesRow />
                 </LazySection>
+
+                <div className='cinema-home__customize'>
+                    <button type='button' className='cinema-btn cinema-glass cinema-focusable' onClick={() => setIsEditingRows(true)}>
+                        <AutoAwesome />
+                        {globalize.translate('CinemaCustomizeHome')}
+                    </button>
+                </div>
             </div>
+            {isEditingRows && <SmartRowsEditor onClose={() => setIsEditingRows(false)} />}
+            {moodPick && (
+                <Suspense fallback={null}>
+                    <MoodPicker initialMood={moodPick} onClose={() => setMoodPick(undefined)} />
+                </Suspense>
+            )}
         </div>
     );
 };

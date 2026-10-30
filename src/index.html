@@ -9,18 +9,19 @@
     <meta http-equiv="X-UA-Compatibility" content="IE=Edge">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="Jellyfin">
+    <meta name="application-name" content="Sky Cinema">
     <meta name="robots" content="noindex, nofollow, noarchive">
     <meta name="referrer" content="no-referrer">
 
-    <meta id="themeColor" name="theme-color" content="#202020">
+    <meta id="themeColor" name="theme-color" content="#07080d">
 
-    <link rel="apple-touch-icon" sizes="180x180" href="../node_modules/@jellyfin/ux-web/favicons/touchicon.png">
-    <link rel="shortcut icon" href="../node_modules/@jellyfin/ux-web/favicons/favicon.ico">
-    <meta name="msapplication-TileImage" content="../node_modules/@jellyfin/ux-web/favicons/touchicon144.png">
-    <meta name="msapplication-TileColor" content="#333333">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/favicons/touchicon.png">
+    <link rel="icon" href="assets/favicons/favicon.ico" sizes="48x48">
+    <link rel="icon" type="image/svg+xml" href="assets/img/sky-cinema.svg">
+    <meta name="msapplication-TileImage" content="assets/favicons/touchicon144.png">
+    <meta name="msapplication-TileColor" content="#07080d">
 
-    <title>Jellyfin</title>
+    <title>Sky Cinema</title>
 
     <style>
         .transparentDocument,
@@ -54,7 +55,7 @@
         }
 
         html {
-            background-color: #101010;
+            background-color: #07080d;
             color: rgba(255, 255, 255, 0.7);
         }
 
@@ -84,11 +85,52 @@
         [dir="rtl"] .mainDrawerHandle {
             left: 0;
         }
+
+        @keyframes splash-in {
+            from {
+                opacity: 0;
+                transform: scale(0.96);
+            }
+        }
+
+        .splashLogo {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            gap: 18px;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font: 700 clamp(2rem, 5vw, 3.2rem) / 1 system-ui, -apple-system, "Segoe UI", sans-serif;
+            letter-spacing: -0.02em;
+            animation: splash-in 0.5s ease backwards;
+        }
+
+        .splashLogo svg {
+            width: clamp(52px, 8vw, 72px);
+            height: clamp(52px, 8vw, 72px);
+            filter: drop-shadow(0 0 40px rgba(138, 180, 255, 0.45));
+        }
     </style>
 </head>
 <body dir="ltr">
     <div id="reactRoot">
-        <div class="splashLogo"></div>
+        <div class="splashLogo" role="img" aria-label="Sky Cinema">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <defs>
+                    <linearGradient id="splash-gradient" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0" stop-color="#8ab4ff"/>
+                        <stop offset="1" stop-color="#c48bff"/>
+                    </linearGradient>
+                </defs>
+                <rect width="24" height="24" rx="6.5" fill="url(#splash-gradient)"/>
+                <g fill="#0b0c14" fill-opacity=".85">
+                    <path d="M8.6 7.3v9.4a.9.9 0 0 0 1.4.8l7.4-4.7a.9.9 0 0 0 0-1.6L10 6.5a.9.9 0 0 0-1.4.8z"/>
+                    <path d="M17.6 3.2l.75 1.9 1.9.75-1.9.75-.75 1.9-.75-1.9-1.9-.75 1.9-.75z"/>
+                </g>
+            </svg>
+            <span>Sky Cinema</span>
+        </div>
     </div>
 </body>
 </html>

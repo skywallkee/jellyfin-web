@@ -1,7 +1,10 @@
 // Cinema layout: design tokens and component styles.
 // Everything is scoped to .cinema-app so other layouts are unaffected.
+// The tokens are also set on the page root while Cinema is in use (:root.cinema-root), so the
+// dialogs and menus Jellyfin adds outside the app can use them too (see styles/overlays.scss).
 
-.cinema-app {
+.cinema-app,
+:root.cinema-root {
     --cinema-bg: #07080d;
     --cinema-bg-rgb: 7, 8, 13;
     --cinema-glow: rgba(138, 180, 255, 0.55);
@@ -22,7 +25,9 @@
     --cinema-rail-offset: 0;
     --cinema-card-land: 300px;
     --cinema-card-poster: 170px;
+}
 
+.cinema-app {
     position: relative;
     min-height: 100%;
     color: var(--cinema-ink);
@@ -178,6 +183,110 @@
     &:hover {
         color: var(--cinema-ink);
         background: var(--cinema-glass-strong);
+    }
+}
+
+// "Request" (opens Seerr): a pill with its label on wide screens, a plain icon on smaller ones
+.cinema-requestbtn {
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+    width: auto;
+    padding: 0 14px 0 10px;
+    border: 1px solid var(--cinema-glass-edge);
+    color: var(--cinema-ink);
+    font-size: 0.85rem;
+    font-weight: 600;
+
+    svg {
+        color: var(--cinema-accent);
+    }
+}
+
+@media (max-width: 1100px) {
+    .cinema-requestbtn {
+        width: 38px;
+        padding: 0;
+        justify-content: center;
+        border: 0;
+    }
+
+    .cinema-requestbtn__label {
+        display: none;
+    }
+}
+
+// A search that found nothing: "not in the library" and a big button to request it
+.cinema-request-prompt {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 32px 28px;
+    border: 1px solid var(--cinema-glass-edge);
+    border-radius: 24px;
+    text-align: center;
+    background: var(--cinema-glass);
+    animation: cinema-fade-in 0.35s ease backwards;
+}
+
+.cinema-request-prompt__title {
+    margin: 0;
+    color: var(--cinema-ink);
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    overflow-wrap: anywhere;
+}
+
+.cinema-request-prompt__text {
+    margin: 0 0 8px;
+    color: var(--cinema-ink-2);
+}
+
+.cinema-request-prompt__button {
+    display: inline-flex;
+    gap: 10px;
+    align-items: center;
+    max-width: 100%;
+    padding: 16px 30px;
+    border-radius: 999px;
+    color: #0b0c14;
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-decoration: none;
+    background: linear-gradient(135deg, var(--cinema-accent), var(--cinema-accent-2));
+    box-shadow: 0 12px 36px var(--cinema-glow-soft);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    overflow-wrap: anywhere;
+
+    &:hover,
+    &:focus-visible {
+        box-shadow: 0 16px 44px var(--cinema-glow-soft), 0 0 0 2px rgba(255, 255, 255, 0.5);
+        transform: translateY(-2px);
+    }
+}
+
+// Inside the quick search palette: same content, less room
+.cinema-request-prompt--compact {
+    max-width: none;
+    margin: 8px 6px 6px;
+    padding: 20px 18px;
+    border-radius: 18px;
+
+    .cinema-request-prompt__title {
+        font-size: 1.05rem;
+    }
+
+    .cinema-request-prompt__text {
+        font-size: 0.9rem;
+    }
+
+    .cinema-request-prompt__button {
+        padding: 12px 22px;
+        font-size: 1rem;
     }
 }
 
@@ -1104,7 +1213,8 @@
 }
 
 // Themes
-.cinema-app[data-cinema-theme='aurora'] {
+.cinema-app[data-cinema-theme='aurora'],
+:root.cinema-root[data-cinema-theme='aurora'] {
     --cinema-bg: #0c0714;
     --cinema-bg-rgb: 12, 7, 20;
     --cinema-accent: #c48bff;
@@ -1113,7 +1223,8 @@
     --cinema-glow-soft: rgba(196, 139, 255, 0.35);
 }
 
-.cinema-app[data-cinema-theme='ember'] {
+.cinema-app[data-cinema-theme='ember'],
+:root.cinema-root[data-cinema-theme='ember'] {
     --cinema-bg: #0e0806;
     --cinema-bg-rgb: 14, 8, 6;
     --cinema-accent: #ffab6b;
@@ -1122,7 +1233,8 @@
     --cinema-glow-soft: rgba(255, 150, 90, 0.35);
 }
 
-.cinema-app[data-cinema-theme='emerald'] {
+.cinema-app[data-cinema-theme='emerald'],
+:root.cinema-root[data-cinema-theme='emerald'] {
     --cinema-bg: #050c0b;
     --cinema-bg-rgb: 5, 12, 11;
     --cinema-accent: #5de0b5;
@@ -1131,7 +1243,8 @@
     --cinema-glow-soft: rgba(93, 224, 181, 0.3);
 }
 
-.cinema-app[data-cinema-theme='mono'] {
+.cinema-app[data-cinema-theme='mono'],
+:root.cinema-root[data-cinema-theme='mono'] {
     --cinema-bg: #080808;
     --cinema-bg-rgb: 8, 8, 8;
     --cinema-accent: #f2f2f2;

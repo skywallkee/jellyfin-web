@@ -2,6 +2,15 @@ import { useCallback, useSyncExternalStore } from 'react';
 
 export type CinemaThemeId = 'midnight' | 'aurora' | 'ember' | 'emerald' | 'mono';
 
+/** The Cinema themes, in the order they're offered (the swatches and the Display settings list). */
+export const CINEMA_THEMES: { id: CinemaThemeId; labelKey: string }[] = [
+    { id: 'midnight', labelKey: 'CinemaThemeMidnight' },
+    { id: 'aurora', labelKey: 'CinemaThemeAurora' },
+    { id: 'ember', labelKey: 'CinemaThemeEmber' },
+    { id: 'emerald', labelKey: 'CinemaThemeEmerald' },
+    { id: 'mono', labelKey: 'CinemaThemeMono' }
+];
+
 export interface CinemaSettings {
     theme: CinemaThemeId;
     /** Play a muted clip of the title in hover previews. */
@@ -16,6 +25,10 @@ export interface CinemaSettings {
     screensaver: boolean;
     /** Play a title's theme song quietly while its details are open. */
     themeMusic: boolean;
+    /** Blur the stills and hide the descriptions of episodes not watched yet. */
+    spoilerFree: boolean;
+    /** Seasonal touches (Halloween, the holidays…) around their dates. */
+    seasonal: boolean;
 }
 
 export const DEFAULT_SETTINGS: CinemaSettings = {
@@ -24,7 +37,9 @@ export const DEFAULT_SETTINGS: CinemaSettings = {
     reduceTransparency: false,
     filmGrain: true,
     screensaver: true,
-    themeMusic: true
+    themeMusic: true,
+    spoilerFree: false,
+    seasonal: true
 };
 
 const STORAGE_KEY = 'cinema-settings';

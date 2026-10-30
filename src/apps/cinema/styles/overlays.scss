@@ -1,0 +1,287 @@
+// Jellyfin's classic overlays (dialogs, pop-up menus, toasts, the loading spinner) are added to the
+// page body, outside the Cinema app. While Cinema is in use the page root carries .cinema-root and
+// the Cinema colours, so they're dressed to match here.
+
+:root.cinema-root {
+    // Native dropdown lists, scrollbars and date pickers draw in their dark variants
+    color-scheme: dark;
+    background-color: var(--cinema-bg);
+
+    // Dimmed, blurred page behind any dialog
+    .dialogBackdropOpened {
+        background: rgba(var(--cinema-bg-rgb), 0.72);
+        opacity: 1;
+        backdrop-filter: blur(10px);
+    }
+
+    .dialog {
+        border: 1px solid var(--cinema-glass-edge);
+        color: var(--cinema-ink);
+        background: rgba(18, 20, 30, 0.9);
+        box-shadow: 0 40px 120px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        backdrop-filter: blur(28px) saturate(1.4);
+        font-family: 'Noto Sans', sans-serif;
+    }
+
+    // Small messages (alerts, confirmations, Quick Connect) float as a card even on small screens,
+    // instead of filling the screen as Jellyfin does below 80em × 45em
+    // (Pop-up menus are left out: Jellyfin places those next to the button that opened them.)
+    .dialog.centeredDialog:not(.actionSheet),
+    .dialog.dialog-fullscreen-lowres:has(.formDialogContent.no-grow) {
+        position: relative !important;
+        inset: auto !important;
+        width: min(440px, calc(100vw - 32px)) !important;
+        height: auto !important;
+        max-height: calc(100dvh - 32px);
+        margin: auto !important;
+        overflow: hidden;
+        border-radius: 24px;
+    }
+
+    // Short forms (sort, filter, "add to collection"…) float as a card at every size, rather than
+    // filling the whole screen as Jellyfin does on anything smaller than a large monitor
+    .dialog.dialog-fixedSize.dialog-small {
+        position: relative !important;
+        inset: auto !important;
+        width: min(520px, calc(100vw - 32px)) !important;
+        height: auto !important;
+        max-height: calc(100dvh - 48px);
+        margin: auto !important;
+        overflow: hidden auto;
+        border-radius: 24px;
+
+        // Jellyfin pads the bottom so long forms can scroll clear of a footer; these have none
+        .dialogContentInner {
+            padding-bottom: 24px !important;
+        }
+    }
+
+    // Other floating dialogs get rounded corners; full-screen ones run edge to edge
+    .dialog:not(.dialog-fullscreen, .dialog-fixedSize, .dialog-fullscreen-lowres, .actionSheet) {
+        overflow: hidden;
+        border-radius: 24px;
+    }
+
+    @media all and (min-width: 80em) and (min-height: 45em) {
+        .dialog-fixedSize {
+            overflow: hidden;
+            border-radius: 24px;
+        }
+    }
+
+    .formDialogHeader,
+    .formDialogFooter {
+        border-color: var(--cinema-glass-edge);
+        background: rgba(var(--cinema-bg-rgb), 0.5);
+    }
+
+    .formDialogHeader-clear,
+    .formDialogFooter-clear {
+        background: transparent;
+    }
+
+    .formDialogHeaderTitle {
+        font-weight: 700;
+        letter-spacing: -0.01em;
+    }
+
+    .formDialogContent .text {
+        color: var(--cinema-ink-2);
+        line-height: 1.5;
+    }
+
+    // Buttons inside dialogs and menus: the main action bright white, the rest quiet glass
+    .dialog .emby-button.raised,
+    .dialog .emby-button.button-submit {
+        border-radius: 999px;
+        color: var(--cinema-ink);
+        font-weight: 600;
+        background: var(--cinema-glass-strong);
+        transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    }
+
+    .dialog .emby-button.button-submit {
+        color: #0b0c14;
+        background: #fff;
+
+        &:hover,
+        &:focus-visible {
+            box-shadow: 0 8px 30px var(--cinema-glow-soft);
+            transform: translateY(-1px);
+        }
+    }
+
+    .dialog .emby-input,
+    .dialog .emby-select,
+    .dialog .emby-textarea {
+        border: 1px solid var(--cinema-glass-edge);
+        border-radius: 12px;
+        color: var(--cinema-ink);
+        background-color: rgba(255, 255, 255, 0.05);
+
+        &:focus {
+            border-color: var(--cinema-accent);
+            outline: none;
+            box-shadow: 0 0 0 3px var(--cinema-glow-soft);
+        }
+    }
+
+    .dialog .emby-select option {
+        color: var(--cinema-ink);
+        background: var(--cinema-bg);
+    }
+
+    .dialog .emby-checkbox:checked ~ .checkboxOutline {
+        border-color: var(--cinema-accent);
+        background-color: var(--cinema-accent);
+    }
+
+    // Pop-up menus (the ⋮ on cards, audio and subtitle pickers in the player, sort menus)
+    .actionSheet {
+        padding: 6px;
+        border: 1px solid var(--cinema-glass-edge);
+        // Jellyfin sets an almost-square corner with !important
+        border-radius: 18px !important;
+        background: rgba(20, 22, 32, 0.9);
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+        backdrop-filter: blur(24px) saturate(1.4);
+
+        &.actionsheet-fullscreen {
+            padding: 0;
+            border: 0;
+            border-radius: 0 !important;
+            background: rgba(var(--cinema-bg-rgb), 0.96);
+        }
+    }
+
+    .actionSheetTitle {
+        margin: 10px 14px 6px;
+        color: var(--cinema-ink-3);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+    }
+
+    .actionSheetMenuItem {
+        margin: 1px 0;
+        border-radius: 12px;
+        color: var(--cinema-ink);
+        transition: background-color 0.15s ease;
+
+        &:hover,
+        &:focus-visible {
+            background: rgba(255, 255, 255, 0.07);
+        }
+
+        // The tick next to the current choice uses the accent
+        .actionsheetMenuItemIcon.check {
+            color: var(--cinema-accent);
+        }
+    }
+
+    .actionsheetDivider {
+        margin: 4px 8px;
+        background: var(--cinema-glass-edge);
+    }
+
+    .actionSheetItemAsideText,
+    .actionSheetText {
+        color: var(--cinema-ink-3);
+    }
+
+    // Toasts ("Saved", "Added to playlist")
+    .toast {
+        border: 1px solid var(--cinema-glass-edge);
+        border-radius: 14px;
+        color: var(--cinema-ink);
+        background: rgba(20, 22, 32, 0.92);
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(20px);
+    }
+
+    // The loading spinner, in the theme's colours rather than Jellyfin blue
+    .mdl-spinner__layer-1,
+    .mdl-spinner__layer-3 {
+        border-color: var(--cinema-accent);
+    }
+
+    .mdl-spinner__layer-2,
+    .mdl-spinner__layer-4 {
+        border-color: var(--cinema-accent-2);
+    }
+}
+
+// Quick Connect: the code, big and spaced, with a short instruction under it
+.cinema-qc {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    align-items: center;
+}
+
+.cinema-qc__code {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+
+.cinema-qc__digit {
+    display: grid;
+    place-items: center;
+    width: 46px;
+    height: 58px;
+    border: 1px solid var(--cinema-glass-edge, rgba(255, 255, 255, 0.16));
+    border-radius: 12px;
+    color: var(--cinema-ink, #fff);
+    background: rgba(255, 255, 255, 0.06);
+    font-size: 1.8rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+}
+
+.cinema-qc__hint {
+    max-width: 30ch;
+    margin: 0;
+    color: var(--cinema-ink-2, rgba(255, 255, 255, 0.72));
+    font-size: 0.9rem;
+}
+
+// A soft pulse while the code waits to be approved
+.cinema-qc__waiting {
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+    color: var(--cinema-ink-3, rgba(255, 255, 255, 0.5));
+    font-size: 0.8rem;
+
+    &::before {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--cinema-accent, #8ab4ff);
+        content: '';
+        animation: cinema-qc-pulse 1.4s ease-in-out infinite;
+    }
+}
+
+@keyframes cinema-qc-pulse {
+    50% {
+        opacity: 0.25;
+        transform: scale(0.7);
+    }
+}
+
+@media (max-width: 400px) {
+    .cinema-qc__digit {
+        width: 38px;
+        height: 50px;
+        font-size: 1.5rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cinema-qc__waiting::before {
+        animation: none;
+    }
+}

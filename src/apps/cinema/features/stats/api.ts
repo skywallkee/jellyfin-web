@@ -10,6 +10,8 @@ import { useQuery } from '@tanstack/react-query';
 import { useApi } from 'hooks/useApi';
 import type { ItemDto } from 'types/base/models/item-dto';
 
+import { type AchievementFacts, getHistoryFacts } from './achievements';
+
 /** Upper bound on watched titles read to add up hours and genres. */
 const MAX_WATCHED = 2000;
 const TOP_GENRES = 6;
@@ -29,6 +31,8 @@ export interface CinemaStats {
     mostWatched: ItemDto[];
     /** Sum of every watched title's runtime times its play count. */
     totalTicks: number;
+    /** What the achievements are measured on. */
+    facts: AchievementFacts;
 }
 
 /** Watched time counts every play, not just the first. */
@@ -49,7 +53,7 @@ const countGenres = (items: ItemDto[]) => {
 export const useCinemaStats = () => {
     const { api, user } = useApi();
     return useQuery({
-        queryKey: [ 'User', user?.Id, 'Cinema', 'Stats' ],
+        queryKey: [ 'User', user?.Id, 'Cinema', 'Stats', 2 ],
         queryFn: async ({ signal }): Promise<CinemaStats> => {
             const library = getLibraryApi(api!);
             const [ watched, favorites, mostWatched ] = await Promise.all([
@@ -87,11 +91,16 @@ export const useCinemaStats = () => {
 
             const items = (watched.data.Items ?? []) as ItemDto[];
             const totalTicks = items.reduce((sum, item) => sum + getWatchedTicks(item), 0);
+            const hours = totalTicks / TICKS_PER_HOUR;
+            const movies = items.filter(item => item.Type !== 'Episode').length;
+            const episodes = items.length - movies;
+            const favoriteCount = favorites.data.TotalRecordCount ?? 0;
             return {
-                hours: totalTicks / TICKS_PER_HOUR,
-                movies: items.filter(item => item.Type !== 'Episode').length,
-                episodes: items.filter(item => item.Type === 'Episode').length,
-                favorites: favorites.data.TotalRecordCount ?? 0,
+                hours,
+                movies,
+                episodes,
+                favorites: favoriteCount,
+                facts: { movies, episodes, hours, favorites: favoriteCount, ...getHistoryFacts(items) },
                 genres: countGenres(items),
                 mostWatched: (mostWatched.data.Items ?? []) as ItemDto[],
                 totalTicks

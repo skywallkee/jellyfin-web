@@ -16,11 +16,13 @@ import { playSound } from '../../utils/sounds';
 const DetailsView = lazy(() => import(/* webpackChunkName: "cinema-details" */ './DetailsView'));
 const PersonView = lazy(() => import(/* webpackChunkName: "cinema-person" */ './PersonView'));
 const GenreView = lazy(() => import(/* webpackChunkName: "cinema-genre" */ './GenreView'));
+const CollectionView = lazy(() => import(/* webpackChunkName: "cinema-collection" */ './CollectionView'));
 
-/** The view for an item: people and genres get their own, everything else the title details. */
+/** The view for an item: people, genres and collections get their own, everything else the title details. */
 const CardView: FC<{ item: ItemDto }> = ({ item }) => {
     if (item.Type === 'Person') return <PersonView item={item} />;
     if (item.Type === 'Genre') return <GenreView item={item} />;
+    if (item.Type === 'BoxSet') return <CollectionView item={item} />;
     return <DetailsView item={item} variant='modal' />;
 };
 

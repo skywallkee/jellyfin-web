@@ -263,3 +263,102 @@
         }
     }
 }
+
+// Jellyfin's own cards (folder and library lists, music, collections) in the Cinema shape:
+// rounded artwork that lifts on hover, glass overlay buttons, accent badges
+.cinema-app .cinema-main {
+    .card .cardScalable {
+        overflow: hidden;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.05);
+        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+        transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease;
+    }
+
+    .card-hoverable:hover .cardScalable,
+    .card:focus-within .cardScalable {
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45), 0 0 0 1px var(--cinema-glass-edge), 0 0 28px var(--cinema-glow-soft);
+        transform: translateY(-4px);
+    }
+
+    .card .cardImageContainer,
+    .card .cardOverlayContainer {
+        border-radius: inherit;
+    }
+
+    .card .cardOverlayContainer {
+        background: linear-gradient(to top, rgba(var(--cinema-bg-rgb), 0.85), transparent 65%);
+    }
+
+    .card .cardOverlayButton {
+        border-radius: 50%;
+        color: #fff;
+        background: rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(10px);
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.24);
+        }
+    }
+
+    .card .cardText {
+        color: var(--cinema-ink);
+        font-weight: 600;
+    }
+
+    .card .cardText-secondary {
+        color: var(--cinema-ink-3);
+        font-weight: 400;
+    }
+
+    .countIndicator,
+    .playedIndicator {
+        color: #0b0c14;
+        background: var(--cinema-accent);
+    }
+
+    .itemProgressBarForeground {
+        background: linear-gradient(90deg, var(--cinema-accent), var(--cinema-accent-2));
+    }
+
+    // The A–Z jump bar down the side
+    .alphaPicker-vertical {
+        padding: 6px 2px;
+        border: 1px solid var(--cinema-glass-edge);
+        border-radius: 999px;
+        background: var(--cinema-glass);
+        backdrop-filter: blur(var(--cinema-blur));
+    }
+
+    .alphaPickerButton {
+        color: var(--cinema-ink-3);
+
+        &:hover,
+        &.alphaPickerButton-selected {
+            color: var(--cinema-accent);
+            background: transparent;
+        }
+    }
+
+    // List-page toolbar (sort, filter, play all): text buttons in the Cinema style
+    .libraryPage .button-flat {
+        border-radius: 999px;
+        color: var(--cinema-ink-2);
+
+        &:hover {
+            color: var(--cinema-ink);
+            background: var(--cinema-glass);
+        }
+    }
+
+    // Tabs on Jellyfin's own library pages (e.g. Music: Albums, Artists, Songs…)
+    .emby-tab-button {
+        border-radius: 999px;
+        color: var(--cinema-ink-2);
+    }
+
+    .emby-tab-button-active {
+        color: var(--cinema-ink);
+        background: var(--cinema-glass-strong);
+    }
+}

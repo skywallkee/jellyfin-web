@@ -183,7 +183,7 @@ function supportsFullscreen() {
 }
 
 function getDefaultLayout() {
-    return LayoutMode.Modern;
+    return LayoutMode.Cinema;
 }
 
 function supportsHtmlMediaAutoplay() {

@@ -21,6 +21,7 @@ import { getDisplayTitle, getEpisodeLabel } from '../utils/items';
 import { addRecentSearch, clearRecentSearches, getRecentSearches } from '../utils/recentSearches';
 import { playSound } from '../utils/sounds';
 
+import RequestPrompt from './RequestPrompt';
 import VoiceButton from './VoiceButton';
 
 const DEBOUNCE_MS = 150;
@@ -248,7 +249,7 @@ const Palette: FC<PaletteProps> = ({ onClose }) => {
                 </ul>
 
                 {hasQuery && !isFetching && results && results.length === 0 && (
-                    <p className='cinema-qs__empty'>{globalize.translate('SearchResultsEmpty', query.trim())}</p>
+                    <RequestPrompt query={debouncedQuery} isCompact onOpen={onClose} />
                 )}
             </div>
         </div>

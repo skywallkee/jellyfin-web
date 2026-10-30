@@ -1,0 +1,395 @@
+// Stars, shown and to rate with
+.cinema-stars {
+    display: inline-flex;
+    align-items: center;
+    color: #ffc94d;
+
+    svg {
+        font-size: 1.1em;
+    }
+}
+
+.cinema-stars--small svg {
+    font-size: 1rem;
+}
+
+.cinema-stars--input {
+    gap: 14px;
+    width: fit-content;
+    padding: 6px 10px 6px 6px;
+    border-radius: 12px;
+    outline-offset: 2px;
+
+    .cinema-stars__hit {
+        display: inline-flex;
+        cursor: pointer;
+        touch-action: manipulation;
+    }
+
+    svg {
+        font-size: 2.4rem;
+    }
+}
+
+.cinema-stars__value {
+    min-width: 4ch;
+    color: var(--cinema-ink-2);
+    font-weight: 700;
+}
+
+// "Log it" button and sheet
+.cinema-diary-btn {
+    gap: 6px;
+
+    &.is-logged {
+        border-color: rgba(255, 201, 77, 0.45);
+    }
+}
+
+.cinema-log {
+    z-index: 1070;
+}
+
+.cinema-log__panel {
+    width: min(560px, 100%);
+    // Solid enough to read and type over busy artwork
+    background: var(--cinema-glass-solid);
+}
+
+.cinema-log__head {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+}
+
+.cinema-log__poster {
+    flex: none;
+    width: 52px;
+    aspect-ratio: 2 / 3;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.08) center / cover no-repeat;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+}
+
+.cinema-log__row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    align-items: flex-end;
+
+    .cinema-smart__field {
+        flex: 1;
+        min-width: 180px;
+    }
+}
+
+.cinema-log__date {
+    color-scheme: dark;
+}
+
+.cinema-log__rewatch {
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+    height: 46px;
+
+    svg {
+        font-size: 1.1rem;
+    }
+}
+
+.cinema-log__note {
+    min-height: 96px;
+    resize: vertical;
+}
+
+.cinema-log__count {
+    align-self: flex-end;
+    color: var(--cinema-ink-3);
+    font-size: 0.75rem;
+}
+
+.cinema-log__delete {
+    margin-left: auto;
+    color: #ff8a80;
+}
+
+// The Diary page
+.cinema-diary__header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    align-items: flex-end;
+    justify-content: space-between;
+}
+
+.cinema-diary__summary {
+    margin: 6px 0 0;
+    color: var(--cinema-ink-2);
+    font-weight: 600;
+}
+
+.cinema-diary__spread {
+    position: relative;
+    display: flex;
+    gap: 4px;
+    align-items: flex-end;
+    height: 64px;
+    padding-bottom: 18px;
+}
+
+.cinema-diary__bar {
+    width: 14px;
+    height: calc(4px + var(--cinema-share, 0) * 42px);
+    border-radius: 4px 4px 2px 2px;
+    background: linear-gradient(to top, rgba(255, 201, 77, 0.5), #ffc94d);
+    transform-origin: bottom;
+    animation: cinema-diary-bar 0.7s calc(var(--cinema-i, 0) * 50ms) cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+}
+
+@keyframes cinema-diary-bar {
+    from {
+        transform: scaleY(0);
+    }
+}
+
+.cinema-diary__axis {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    justify-content: space-between;
+    color: var(--cinema-ink-3);
+    font-size: 0.7rem;
+}
+
+.cinema-diary__entry {
+    display: grid;
+    grid-template-columns: 52px 64px minmax(0, 1fr) auto;
+    gap: 16px;
+    align-items: center;
+    padding: 10px 12px;
+    border: 1px solid var(--cinema-glass-edge);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.04);
+    animation: cinema-card-rise 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+    animation-delay: calc(var(--cinema-i, 0) * 50ms);
+}
+
+.cinema-diary__day {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.cinema-diary__date {
+    font-size: 1.6rem;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.cinema-diary__weekday {
+    color: var(--cinema-ink-3);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+}
+
+.cinema-diary__poster {
+    display: block;
+    width: 64px;
+    aspect-ratio: 2 / 3;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.08) center / cover no-repeat;
+}
+
+.cinema-diary__text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.cinema-diary__title {
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+.cinema-diary__year {
+    margin-left: 8px;
+    color: var(--cinema-ink-3);
+    font-weight: 500;
+}
+
+.cinema-diary__meta {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.cinema-diary__rewatch {
+    display: inline-flex;
+    color: var(--cinema-accent);
+
+    svg {
+        font-size: 1.1rem;
+    }
+}
+
+.cinema-diary__note {
+    display: -webkit-box;
+    overflow: hidden;
+    color: var(--cinema-ink-2);
+    font-size: 0.9rem;
+    font-style: italic;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+}
+
+@media (max-width: 760px) {
+    .cinema-diary__entry {
+        grid-template-columns: 40px 52px minmax(0, 1fr) auto;
+        gap: 10px;
+    }
+
+    .cinema-diary__poster {
+        width: 52px;
+    }
+}
+
+// Spoiler-free: stills blurred, descriptions replaced
+.cinema-card.is-spoiler.is-loaded img.cinema-card__image {
+    filter: blur(16px) saturate(0.7);
+    transform: scale(1.15);
+}
+
+.cinema-episode.is-spoiler .cinema-episode__thumb,
+.cinema-pextras__episode.is-spoiler .cinema-pextras__thumb,
+.cinema-endscreen__still.is-spoiler {
+    filter: blur(14px) saturate(0.7);
+    clip-path: inset(0 round 10px);
+}
+
+.cinema-episode.is-spoiler .cinema-episode__overview,
+.cinema-pextras__episode.is-spoiler .cinema-pextras__overview,
+.cinema-spoiler-note {
+    color: var(--cinema-ink-3);
+    font-style: italic;
+}
+
+// Seasonal row: its own title colour and a tagline above
+.cinema-seasonal {
+    --cinema-season-a: #ff8a3d;
+    --cinema-season-b: #b44bff;
+
+    position: relative;
+
+    .cinema-row__title {
+        width: fit-content;
+        background: linear-gradient(90deg, var(--cinema-season-a), var(--cinema-season-b));
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+}
+
+.cinema-seasonal--holidays {
+    --cinema-season-a: #9fe3ff;
+    --cinema-season-b: #ff6b6b;
+}
+
+.cinema-seasonal--valentine {
+    --cinema-season-a: #ff7eb3;
+    --cinema-season-b: #ff3d6e;
+}
+
+.cinema-seasonal--summer {
+    --cinema-season-a: #ffd166;
+    --cinema-season-b: #ff7a45;
+}
+
+.cinema-seasonal__tagline {
+    margin: 0 var(--cinema-gutter) 2px;
+    color: var(--cinema-season-a);
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+// Seasonal atmosphere: a few motes drifting down over the top of home
+.cinema-seasonfx {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 2;
+    height: 90vh;
+    overflow: hidden;
+    pointer-events: none;
+    mask-image: linear-gradient(to bottom, #000 60%, transparent);
+}
+
+.cinema-seasonfx__mote {
+    position: absolute;
+    top: -20px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    opacity: 0;
+    animation: cinema-mote-fall 14s linear infinite;
+
+    @for $i from 1 through 14 {
+        &:nth-child(#{$i}) {
+            left: #{(($i * 37) % 100)}%;
+            animation-duration: #{10 + ($i * 7) % 9}s;
+            animation-delay: #{-($i * 1.7)}s;
+            transform: scale(#{0.6 + ($i % 4) * 0.25});
+        }
+    }
+}
+
+@keyframes cinema-mote-fall {
+    0% {
+        opacity: 0;
+        translate: 0 0;
+    }
+
+    10% {
+        opacity: 0.85;
+    }
+
+    90% {
+        opacity: 0.6;
+    }
+
+    100% {
+        opacity: 0;
+        translate: 40px 90vh;
+    }
+}
+
+.cinema-seasonfx--halloween .cinema-seasonfx__mote {
+    background: #ff8a3d;
+    box-shadow: 0 0 10px 2px rgba(255, 120, 40, 0.8);
+}
+
+.cinema-seasonfx--holidays .cinema-seasonfx__mote {
+    background: #fff;
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.9);
+}
+
+.cinema-seasonfx--valentine .cinema-seasonfx__mote {
+    background: #ff6b9a;
+    box-shadow: 0 0 10px rgba(255, 80, 140, 0.8);
+}
+
+.cinema-seasonfx--summer .cinema-seasonfx__mote {
+    background: #ffd166;
+    box-shadow: 0 0 10px rgba(255, 200, 80, 0.8);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cinema-seasonfx {
+        display: none;
+    }
+}

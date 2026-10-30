@@ -8,6 +8,9 @@ import type { ItemDto } from 'types/base/models/item-dto';
 import { getLandscapeUrl } from '../../utils/images';
 import { formatRuntime, getRemainingTicks } from '../../utils/items';
 import { playItem } from '../../utils/actions';
+import { useIsSpoiler } from '../../utils/spoilers';
+
+import { getAirLabel, isMissingEpisode, isUnaired } from '../comingsoon/api';
 
 import { useEpisodes } from './api';
 
@@ -23,6 +26,12 @@ interface EpisodesPanelProps {
 }
 
 const getEpisodeStatus = (episode: ItemDto) => {
+    // Episodes the library knows about but has no file for: when they air, or that they're missing
+    if (isMissingEpisode(episode)) {
+        return isUnaired(episode) ?
+            globalize.translate('CinemaAirsOn', getAirLabel(episode.PremiereDate)) :
+            globalize.translate('CinemaNotInLibrary');
+    }
     if (episode.UserData?.Played) return globalize.translate('Watched');
     const remaining = formatRuntime(getRemainingTicks(episode));
     return remaining ? `${remaining} · ${globalize.translate('ButtonResume')}` : undefined;
@@ -51,10 +60,15 @@ const EpisodeRow: FC<EpisodeRowProps> = ({ episode, isCurrent, fallbackImageUrl 
         getEpisodeStatus(episode)
     ].filter(Boolean).join(' · ');
 
+    const isMissing = isMissingEpisode(episode);
+    const isHidden = useIsSpoiler()(episode);
+
     return (
         <button
             type='button'
-            className={classNames('cinema-episode cinema-focusable', { 'is-current': isCurrent })}
+            className={classNames('cinema-episode cinema-focusable', { 'is-current': isCurrent, 'is-missing': isMissing, 'is-spoiler': isHidden })}
+            // Nothing to play yet for a missing episode
+            disabled={isMissing}
             onClick={() => playItem(episode, isResumable)}
             aria-current={isCurrent || undefined}
             data-episode-id={episode.Id}
@@ -72,7 +86,11 @@ const EpisodeRow: FC<EpisodeRowProps> = ({ episode, isCurrent, fallbackImageUrl 
             <span className='cinema-episode__text'>
                 <span className='cinema-episode__info'>{info}</span>
                 <span className='cinema-episode__title'>{episode.Name}</span>
-                {episode.Overview && <span className='cinema-episode__overview'>{episode.Overview}</span>}
+                {episode.Overview && (
+                    <span className='cinema-episode__overview'>
+                        {isHidden ? globalize.translate('CinemaSpoilerHidden') : episode.Overview}
+                    </span>
+                )}
             </span>
         </button>
     );

@@ -17,6 +17,7 @@ import { getLandscapeUrl, getPosterUrl } from '../utils/images';
 import { rememberOrigin } from '../utils/originRect';
 import { playItem } from '../utils/actions';
 import { getDisplayTitle, getEpisodeLabel } from '../utils/items';
+import { useIsSpoiler } from '../utils/spoilers';
 import { useItemLink } from '../hooks/useItemLink';
 import { usePrefetch } from '../hooks/usePrefetch';
 import { useRemoveFromResume } from '../hooks/useRemoveFromResume';
@@ -129,12 +130,14 @@ const MediaCard: FC<MediaCardProps> = ({ item, shape, subtitle, showProgress, in
     // The artwork's own colour: it glows under the card and lights the page while the card is chosen
     const color = getBlurhashColor(blurhash);
     const glowColor = color ? toRgbString(brighten(color, 150)) : undefined;
+    // Spoiler-free mode blurs the still of an episode not started yet
+    const isSpoiler = useIsSpoiler()(item);
 
     const card = (
         <Link
             to={to}
             state={state}
-            className={classNames('cinema-card cinema-focusable', `cinema-card--${shape}`, { 'is-loaded': isLoaded || !imageUrl, 'has-blur': Boolean(blurUrl) })}
+            className={classNames('cinema-card cinema-focusable', `cinema-card--${shape}`, { 'is-loaded': isLoaded || !imageUrl, 'has-blur': Boolean(blurUrl), 'is-spoiler': isSpoiler })}
             style={{
                 '--cinema-i': Math.min(index, MAX_STAGGER_INDEX),
                 '--cinema-card-rgb': glowColor,

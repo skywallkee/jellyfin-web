@@ -19,6 +19,7 @@ import type { ItemDto } from 'types/base/models/item-dto';
 
 import type { CardShape } from '../components/MediaCard';
 import MediaRow from '../components/MediaRow';
+import RequestPrompt from '../components/RequestPrompt';
 import VoiceButton from '../components/VoiceButton';
 import { useHideLegacyView } from '../hooks/useHideLegacyView';
 import { useItemLink } from '../hooks/useItemLink';
@@ -154,7 +155,7 @@ const Results: FC<ResultsProps> = ({ query, parentId, collectionType }) => {
     if (!sections?.length) {
         return (
             <div className='cinema-library__empty'>
-                <p>{globalize.translate('SearchResultsEmpty', query)}</p>
+                <RequestPrompt query={query} />
                 {parentId && (
                     <Link
                         className='cinema-btn cinema-glass cinema-focusable'
